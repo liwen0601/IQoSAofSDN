@@ -9,7 +9,7 @@
 #include "Packet.h"
 
 
-VOID CfManage::Init ()
+VOID CfEngine::Init ()
 {
     //#######################################################
     // configure classifier Youtube

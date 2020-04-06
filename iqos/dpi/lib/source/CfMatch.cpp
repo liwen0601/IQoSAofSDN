@@ -8,5 +8,11 @@
 #include "Classifier.h"
 
 
+bool Classifier::ClassifyMatch ()
+
+{
+
+    return false;
+}
 
 

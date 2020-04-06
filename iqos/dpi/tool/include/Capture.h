@@ -55,11 +55,14 @@ public:
 
 class IPCapture: public Capture
 {
+
+static set<DWORD> m_UserIpSet;
+
 public:
 
     static void Analysis(BYTE *user,   struct pcap_pkthdr *Hdr, BYTE *PktData)
     {
-        IpEthPacket Packet(PktData, Hdr->caplen);
+        IpPacket Packet(PktData, Hdr->caplen, &m_UserIpSet);
 
         pcap_dump(user, Hdr, PktData);
     }

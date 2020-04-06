@@ -9,6 +9,8 @@
 #include <Log.h>
 #include "Capture.h"
 
+set<DWORD> IPCapture::m_UserIpSet;
+
 #define FILENAME "capture.pcap"
 
 BOOL Capture::IsDeviceOnline ()

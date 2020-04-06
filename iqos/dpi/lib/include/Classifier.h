@@ -90,6 +90,8 @@ public:
 
         return S;
     }
+
+    bool ClassifyMatch ();
 };
 
 
@@ -97,7 +99,7 @@ typedef map<DWORD, Classifier*> T_Id2Classifier;
 typedef map<DWORD, string> T_Id2Pattern;
 
 
-class CfManage
+class CfEngine
 {
 private:
     T_Id2Classifier m_CfId2Cf;
@@ -106,13 +108,14 @@ private:
     T_Id2Classifier m_Ptn2Cf;
     
 public:
-    CfManage ()
+    CfEngine ()
     {
     }
 
-    ~CfManage ()
+    ~CfEngine ()
     {
     }
+
 
     inline Classifier* NewClassifier (string Name, DWORD Lv4Type, DWORD Port=0)
     {

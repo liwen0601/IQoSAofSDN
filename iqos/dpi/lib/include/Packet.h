@@ -121,22 +121,38 @@ struct UdpHdr
 	WORD wCheckSum;    
 };
 
-class IpEthPacket:public Packet
+class IpPacket:public Packet
 {
-private:
-    IpEthHder *m_EthHeader;
-    Ipv4Hdr *m_Ipv4Header;
-    TcpHdr  *m_TcpHdr;
-    UdpHdr  *m_UdpHdr;
+public:
+    DWORD m_SrcIp;
+    DWORD m_DstIp;
+    WORD  m_SrcPort;
+    WORD  m_DstPort;
+    DWORD m_ProtoType;
+
+    DWORD m_PayloadLen;
 
 private:
-    DWORD EthParse ();
-    DWORD Ipv4Parse ();
+    IpEthHder* EthParse ();
+    DWORD Ipv4Parse (IpEthHder* EthHeader);
     DWORD ParsePacket();
+
+    set<DWORD>* m_UserIpSet;
+
+    inline bool IsUserIp (DWORD Ip)
+    {
+        if (m_UserIpSet->find (Ip) != m_UserIpSet->end())
+        {
+            return true;
+        }
+
+        return false;
+    }
     
 public:
-    IpEthPacket (BYTE* PktData, DWORD PktLen):Packet(PktData, PktLen)
+    IpPacket (BYTE* PktData, DWORD PktLen, set<DWORD>* UserIpSet):Packet(PktData, PktLen)
     {
+        m_UserIpSet = UserIpSet;
         ParsePacket();
     }
 };
