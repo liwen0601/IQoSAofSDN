@@ -8,6 +8,8 @@
 #ifndef _CLASSIFIER_H_
 #define _CLASSIFIER_H_
 #include <BasicType.h>
+#include <Packet.h>
+#include <Wm.h>
 
 using namespace std;
 
@@ -40,6 +42,21 @@ public:
     {
         return m_Sid;
     }
+
+    inline bool IsFin ()
+    {
+        return m_IsFin;
+    }
+
+    inline T_IdMap::iterator begin ()
+    {
+        return m_Pid2Sid.begin();
+    }
+
+    inline T_IdMap::iterator end ()
+    {
+        return m_Pid2Sid.end();
+    }
 };
 
 
@@ -52,9 +69,7 @@ private:
     DWORD m_Id;
     DWORD m_Lv4Type;
     DWORD m_Port;
-    
-    DWORD m_CurState;
-    
+        
     T_StateMap m_StateMap;
     
 
@@ -91,28 +106,51 @@ public:
         return S;
     }
 
-    bool ClassifyMatch ();
+    inline State* GetState (DWORD Sid)
+    {
+        auto It = m_StateMap.find (Sid);
+        if (It == m_StateMap.end())
+        {
+            return NULL;
+        }
+
+        return It->second;
+    }
+
+    inline string GetName ()
+    {
+        return m_Name;
+    }
+
+    inline DWORD GetId ()
+    {
+        return m_Id;
+    }
+
+    bool Match (T_Result* Prst, DWORD* StateNo);
 };
 
 
 typedef map<DWORD, Classifier*> T_Id2Classifier;
-typedef map<DWORD, string> T_Id2Pattern;
 
 
-class CfEngine
+class CfManage
 {
 private:
     T_Id2Classifier m_CfId2Cf;
-    T_Id2Pattern m_Id2Pattern;
+    T_Pid2Pattern m_Id2Pattern;
 
     T_Id2Classifier m_Ptn2Cf;
+    WmMatch *m_Wm;
     
 public:
-    CfEngine ()
+    CfManage ()
     {
+        m_Wm = new WmMatch (&m_Id2Pattern);
+        assert (m_Wm != NULL);
     }
 
-    ~CfEngine ()
+    ~CfManage ()
     {
     }
 
@@ -138,10 +176,41 @@ public:
         return Pid;
     }
 
-    inline VOID Pattern2Classifier (DWORD Pid, Classifier* Cf)
+    inline VOID MapPatternCf (DWORD Pid, Classifier* Cf)
     {
         m_Ptn2Cf[Pid] = Cf;
         return;
+    }
+
+    inline Classifier* GetCfByPid (DWORD Pid)
+    {
+        auto It = m_Ptn2Cf.find (Pid);
+        assert (It != m_Ptn2Cf.end());
+
+        return It->second;
+    }
+
+    
+    inline T_Result* PatternMach (BYTE* Data, DWORD Length)
+    {
+        T_Result *Rst = m_Wm->Search (string ((char*)Data), Length);
+    
+        return Rst;
+    }
+
+    inline Classifier* GetCf (DWORD CfId)
+    {
+        auto It = m_CfId2Cf.find (CfId);
+        assert (It != m_CfId2Cf.end());
+
+        return It->second;
+    }
+
+    inline string GetCfName (DWORD CfId)
+    {
+        Classifier *Cf = GetCf (CfId);
+
+        return Cf->GetName ();
     }
     
     VOID Init ();

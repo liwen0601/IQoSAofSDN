@@ -9,7 +9,7 @@
 #include "Packet.h"
 
 
-VOID CfEngine::Init ()
+VOID CfManage::Init ()
 {
     //#######################################################
     // configure classifier Youtube
@@ -24,7 +24,7 @@ VOID CfEngine::Init ()
     DWORD Pid0 = NewPattern ("www.gstatic.com");
     State0->AddNextState (Pid0, State1->GetId ());
 
-    Pattern2Classifier (Pid0, Youtube);
+    MapPatternCf (Pid0, Youtube);
     }
 
 
@@ -41,7 +41,7 @@ VOID CfEngine::Init ()
     DWORD Pid0 = NewPattern ("outlookmobile-office365-tas.msedge.net");
     State0->AddNextState (Pid0, State1->GetId ());
 
-    Pattern2Classifier (Pid0, Office365);
+    MapPatternCf (Pid0, Office365);
     }
 } 
 

@@ -90,6 +90,7 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
 
                 m_ProtoType = LV4_TCP;
                 m_PayloadLen = m_PktLen-(ETH_HEADER_LEN+IPHDR_LEN+TcpHdrLen);
+                m_Payload    = (BYTE*)(THdr+1);
                 
                 if (IsUserIp (Ipv4Header->sourceIP))
                 {
@@ -125,6 +126,7 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
 
                 m_ProtoType = LV4_UDP;
                 m_PayloadLen = m_PktLen-(ETH_HEADER_LEN+IPHDR_LEN+UDPHDR_LEN);
+                m_Payload    = (BYTE*)(UHdr+1);
                 
                 if (IsUserIp (Ipv4Header->sourceIP))
                 {

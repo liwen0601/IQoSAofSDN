@@ -9,21 +9,48 @@
 
 string ClassifyEngine::ClassifyFlow (IpPacket *Pkt)
 {
-    if (!Pkt->m_PayloadLen)
+    DWORD CfId;
+    
+    User *Uctxt = GetUser (User (Pkt->m_SrcIp));
+    assert (Uctxt != NULL);
+
+    Flow *Fctxt = Uctxt->GetFlow (Flow(Pkt->m_SrcIp, Pkt->m_DstIp, 
+                                  Pkt->m_SrcPort, Pkt->m_DstPort, 
+                                  Pkt->m_ProtoType)
+                                 );
+    assert (Fctxt != NULL);
+
+    CfId = Fctxt->GetCfId ();
+    if (CfId != 0)
     {
-        return "";
+        return m_CfMng->GetCfName (CfId);
     }
 
-    /* get user context */
+    T_Result *PtnRst = m_CfMng->PatternMach (Pkt->m_Payload, Pkt->m_PayloadLen);
 
+    T_CfSet CfSet;
+    for (auto Pit = PtnRst->begin (), Pend = PtnRst->end(); Pit != Pend; Pit++)
+    {
+        Classifier *RelCf = m_CfMng->GetCfByPid (*Pit);
+        assert (RelCf != NULL);
 
+        CfSet.insert (RelCf);
+    }
 
-    /* get flow context */
+    for (auto Cit = CfSet.begin (), Cend = CfSet.end(); Cit  != Cend; Cit++)
+    {
+        Classifier *Cf = *Cit;
+        CfCtxt *Ctx = Fctxt->GetCfCtext (Cf);
 
+        bool IsFin = Cf->Match (PtnRst, &Ctx->m_CurState);
+        if (IsFin)
+        {
+            Fctxt->SetCfId (Cf->GetId());
+            return Cf->GetName ();
+        }
+    }
 
-    /* entry CfEngine*/
-    
-    return "";
+    return "None";
 }
 
 

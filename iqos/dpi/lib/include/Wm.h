@@ -21,7 +21,7 @@ typedef set<DWORD> T_Result;
 class WmMatch 
 {
 public:
-	WmMatch(T_Pid2Pattern& Patterns)
+	WmMatch(T_Pid2Pattern* Patterns)
 	{
         m_Min = 0;
         m_Initialized = false;
@@ -39,7 +39,7 @@ public:
 	T_Result* Search(const string& Text, const DWORD Length);
 
 private:
-    VOID Compile(T_Pid2Pattern& Patterns);
+    VOID Compile(T_Pid2Pattern* Patterns);
     
 private:
 	bool m_Initialized;
@@ -53,9 +53,9 @@ private:
     T_Result m_Result;
     T_Pid2Pattern m_Patterns;
 
-    inline VOID InitPatterns (T_Pid2Pattern& Patterns)
+    inline VOID InitPatterns (T_Pid2Pattern* Patterns)
     {
-        for (auto it = Patterns.begin(), end = Patterns.end(); it != end; it++)
+        for (auto it = Patterns->begin(), end = Patterns->end(); it != end; it++)
         {
             string Ptn = it->second;
             m_Patterns[it->first] = it->second;

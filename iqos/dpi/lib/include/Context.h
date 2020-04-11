@@ -15,7 +15,17 @@
 
 using namespace std;
 
+
+
+class CfCtxt
+{
+public:
+    DWORD m_CurState;
+};
+
+typedef map<Classifier*, CfCtxt> T_Cf2Ctext;
 typedef set<Classifier*> T_CfSet;
+
 
 class Flow
 {
@@ -27,7 +37,8 @@ public:
     DWORD m_ProtoType;
 
 private:
-    T_CfSet m_PbCfSet;
+    T_Cf2Ctext m_Cf2Text;
+    DWORD m_CfId;
 
 public:
     Flow (DWORD SrcIp, DWORD DstIp, WORD SrcPort, WORD DstPort, DWORD ProtoType)
@@ -37,25 +48,43 @@ public:
         m_SrcPort = SrcPort;
         m_DstPort = DstPort;
         m_ProtoType = ProtoType;
+
+        m_CfId = 0;
     }
 
     ~Flow ()
     {
     }
 
-    inline VOID AddCf (Classifier *Cf)
+    inline CfCtxt* GetCfCtext (Classifier *Cf)
     {
-        m_PbCfSet.insert (Cf);
+        auto It = m_Cf2Text.find (Cf);
+        if (It == m_Cf2Text.end())
+        {
+            m_Cf2Text[Cf] = CfCtxt ();            
+        }
+        
+        return &(m_Cf2Text[Cf]);    
     }
 
-    inline T_CfSet::iterator CfBegin ()
+    inline T_Cf2Ctext::iterator CfBegin ()
     {
-        return m_PbCfSet.begin();
+        return m_Cf2Text.begin();
     }
 
-    inline T_CfSet::iterator CfEnd ()
+    inline T_Cf2Ctext::iterator CfEnd ()
     {
-        return m_PbCfSet.end();
+        return m_Cf2Text.end();
+    }
+
+    inline DWORD GetCfId ()
+    {
+        return m_CfId;
+    }
+
+    inline VOID SetCfId (DWORD Cfid)
+    {
+        m_CfId = Cfid;
     }
 
     typedef struct 
@@ -108,7 +137,7 @@ public:
         return m_Ipaddr;
     }
 
-    inline Flow* AddFlow (Flow &F)
+    inline Flow* AddFlow (Flow F)
     {
         auto It = m_FlowSet.insert (F);
         if (It.second == false)
@@ -119,7 +148,7 @@ public:
         return (Flow*)(&(*It.first));        
     }
 
-    inline Flow* GetFlow (Flow &F)
+    inline Flow* GetFlow (Flow F)
     {
         auto It = m_FlowSet.find (F);
         if (It != m_FlowSet.end())
@@ -154,14 +183,18 @@ class ClassifyEngine
 private:
     T_UserIpSet m_UserIpSet;
     T_UsetSet m_UserSet;
+    CfManage *m_CfMng;
 
 public:
-    ClassifyEngine (T_UserIpSet &UserIpSet)
+    ClassifyEngine (T_UserIpSet &UserIpSet, CfManage *CfMng)
     {
         for (auto It = UserIpSet.begin(); It != UserIpSet.end(); It++)
         {
             m_UserIpSet.insert (*It);
         }
+
+        m_CfMng = CfMng;
+        assert (m_CfMng != NULL);
     }
 
     ~ClassifyEngine ()
@@ -182,7 +215,7 @@ public:
         return (User *)(&(*It.first));    
     }
     
-    inline User* GetUser (User &U)
+    inline User* GetUser (User U)
     {
         auto It = m_UserSet.find (U);
         if (It != m_UserSet.end())

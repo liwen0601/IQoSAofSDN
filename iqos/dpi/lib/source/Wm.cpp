@@ -9,13 +9,13 @@
 
 const static DWORD BLOCK_SIZE = 3;
 
-void WmMatch::Compile(T_Pid2Pattern &Patterns) 
+void WmMatch::Compile(T_Pid2Pattern *Patterns) 
 {
     InitPatterns (Patterns);
 
 	cout << "===> m_Min: " << m_Min <<endl;
 
-	for (auto ItP = Patterns.begin(), EndP = Patterns.end(); ItP != EndP; ItP++) 
+	for (auto ItP = Patterns->begin(), EndP = Patterns->end(); ItP != EndP; ItP++) 
     {
         string *Ptn = &(ItP->second);
 		for (DWORD Ch = 0; Ch < m_Min - BLOCK_SIZE + 1; ++Ch) 

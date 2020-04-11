@@ -131,6 +131,7 @@ public:
     DWORD m_ProtoType;
 
     DWORD m_PayloadLen;
+    BYTE* m_Payload;
 
 private:
     IpEthHder* EthParse ();
