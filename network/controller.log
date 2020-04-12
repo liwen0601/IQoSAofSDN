@@ -1,0 +1,21 @@
+loading app controller.py
+loading app ryu.controller.ofp_handler
+instantiating app controller.py of SimpleSwitch
+instantiating app ryu.controller.ofp_handler of OFPHandler
+packet in 1 2a:37:70:2a:0f:f9 33:33:00:00:00:02 1
+packet in 1 2a:37:70:2a:0f:f9 33:33:00:00:00:16 1
+packet in 1 c2:a8:b8:f5:5e:36 33:33:00:00:00:16 2
+packet in 1 c2:a8:b8:f5:5e:36 33:33:00:00:00:02 2
+port modified 2
+packet in 1 c2:a8:b8:f5:5e:36 33:33:00:00:00:16 2
+port modified 1
+packet in 1 2a:37:70:2a:0f:f9 33:33:00:00:00:16 1
+packet in 1 2a:37:70:2a:0f:f9 ff:ff:ff:ff:ff:ff 1
+packet in 1 c2:a8:b8:f5:5e:36 2a:37:70:2a:0f:f9 2
+packet in 1 2a:37:70:2a:0f:f9 c2:a8:b8:f5:5e:36 1
+packet in 1 2a:37:70:2a:0f:f9 33:33:00:00:00:02 1
+packet in 1 c2:a8:b8:f5:5e:36 33:33:00:00:00:02 2
+port modified 1
+port deleted 1
+port modified 2
+port deleted 2
