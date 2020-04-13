@@ -1,21 +1,72 @@
 loading app controller.py
 loading app ryu.controller.ofp_handler
-instantiating app controller.py of SimpleSwitch
+instantiating app controller.py of SimpleSwitch13
 instantiating app ryu.controller.ofp_handler of OFPHandler
-packet in 1 2a:37:70:2a:0f:f9 33:33:00:00:00:02 1
-packet in 1 2a:37:70:2a:0f:f9 33:33:00:00:00:16 1
-packet in 1 c2:a8:b8:f5:5e:36 33:33:00:00:00:16 2
-packet in 1 c2:a8:b8:f5:5e:36 33:33:00:00:00:02 2
-port modified 2
-packet in 1 c2:a8:b8:f5:5e:36 33:33:00:00:00:16 2
-port modified 1
-packet in 1 2a:37:70:2a:0f:f9 33:33:00:00:00:16 1
-packet in 1 2a:37:70:2a:0f:f9 ff:ff:ff:ff:ff:ff 1
-packet in 1 c2:a8:b8:f5:5e:36 2a:37:70:2a:0f:f9 2
-packet in 1 2a:37:70:2a:0f:f9 c2:a8:b8:f5:5e:36 1
-packet in 1 2a:37:70:2a:0f:f9 33:33:00:00:00:02 1
-packet in 1 c2:a8:b8:f5:5e:36 33:33:00:00:00:02 2
-port modified 1
-port deleted 1
-port modified 2
-port deleted 2
+OVSBridge success
+Set QoS to port s1-eth1
+QoS success
+Set QoS to port s1-eth2
+QoS success
+Add a flow
+OVSBridge success
+Add a flow
+packet in 0000000000000001 8e:2f:78:e3:15:17 33:33:00:00:00:02 1 []
+packet in 0000000000000001 02:36:b1:41:fd:8f 33:33:00:00:00:02 2 []
+packet in 0000000000000001 8e:2f:78:e3:15:17 33:33:00:00:00:02 1 []
+packet in 0000000000000001 02:36:b1:41:fd:8f 33:33:00:00:00:02 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 8e:2f:78:e3:15:17 02:36:b1:41:fd:8f 1 []
+Add a flow
+Add a flow
+packet in 0000000000000001 02:36:b1:41:fd:8f 8e:2f:78:e3:15:17 2 [ipv4(csum=64810,dst='10.0.0.1',flags=2,header_length=5,identification=10639,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=60,ttl=64,version=4)]
+Add a flow
+Add a flow
+packet in 0000000000000001 02:36:b1:41:fd:8f 8e:2f:78:e3:15:17 2 [ipv4(csum=64817,dst='10.0.0.1',flags=2,header_length=5,identification=10640,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=52,ttl=64,version=4)]
+Add a flow
+Add a flow
+packet in 0000000000000001 02:36:b1:41:fd:8f 8e:2f:78:e3:15:17 2 [ipv4(csum=63368,dst='10.0.0.1',flags=2,header_length=5,identification=10641,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+packet in 0000000000000001 02:36:b1:41:fd:8f 8e:2f:78:e3:15:17 2 [ipv4(csum=63367,dst='10.0.0.1',flags=2,header_length=5,identification=10642,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+packet in 0000000000000001 02:36:b1:41:fd:8f 8e:2f:78:e3:15:17 2 [ipv4(csum=63366,dst='10.0.0.1',flags=2,header_length=5,identification=10643,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+packet in 0000000000000001 02:36:b1:41:fd:8f 8e:2f:78:e3:15:17 2 [ipv4(csum=63365,dst='10.0.0.1',flags=2,header_length=5,identification=10644,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+packet in 0000000000000001 02:36:b1:41:fd:8f 8e:2f:78:e3:15:17 2 [ipv4(csum=63364,dst='10.0.0.1',flags=2,header_length=5,identification=10645,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+packet in 0000000000000001 02:36:b1:41:fd:8f 8e:2f:78:e3:15:17 2 [ipv4(csum=63363,dst='10.0.0.1',flags=2,header_length=5,identification=10646,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+packet in 0000000000000001 02:36:b1:41:fd:8f 8e:2f:78:e3:15:17 2 [ipv4(csum=63362,dst='10.0.0.1',flags=2,header_length=5,identification=10647,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+packet in 0000000000000001 02:36:b1:41:fd:8f 8e:2f:78:e3:15:17 2 [ipv4(csum=63361,dst='10.0.0.1',flags=2,header_length=5,identification=10648,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+packet in 0000000000000001 02:36:b1:41:fd:8f 8e:2f:78:e3:15:17 2 [ipv4(csum=63360,dst='10.0.0.1',flags=2,header_length=5,identification=10649,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+packet in 0000000000000001 02:36:b1:41:fd:8f 8e:2f:78:e3:15:17 2 [ipv4(csum=63359,dst='10.0.0.1',flags=2,header_length=5,identification=10650,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+packet in 0000000000000001 02:36:b1:41:fd:8f ff:ff:ff:ff:ff:ff 2 []
