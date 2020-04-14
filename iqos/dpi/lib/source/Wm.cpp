@@ -6,21 +6,20 @@
    <1> 4/05/2019 , create
 ************************************************************/
 #include <Wm.h>
+#include <Log.h>
 
 const static DWORD BLOCK_SIZE = 3;
 
 void WmMatch::Compile(T_Pid2Pattern *Patterns) 
 {
-    InitPatterns (Patterns);
-
 	cout << "===> m_Min: " << m_Min <<endl;
 
 	for (auto ItP = Patterns->begin(), EndP = Patterns->end(); ItP != EndP; ItP++) 
     {
-        string *Ptn = &(ItP->second);
+        BYTE *Ptn = (BYTE*)((ItP->second).c_str());
 		for (DWORD Ch = 0; Ch < m_Min - BLOCK_SIZE + 1; ++Ch) 
         {
-			string Block = Ptn->substr(Ch, BLOCK_SIZE);
+			DWORD Block = Ptn[Ch]<<3 | Ptn[Ch+1]<<2 | Ptn[Ch+2];
             
 			DWORD BlockPos = m_Min - Ch - BLOCK_SIZE;
 			DWORD Shift = (BlockPos == 0) ? (m_Min - BLOCK_SIZE + 1) : BlockPos;
@@ -60,7 +59,7 @@ void WmMatch::Compile(T_Pid2Pattern *Patterns)
 	m_Initialized = true;
 }
 
-T_Result* WmMatch::Search(const string& Text, const DWORD Length)
+T_Result* WmMatch::Search(const BYTE* Text, const DWORD Length)
 {
     if (m_Initialized == false)
     {
@@ -71,7 +70,7 @@ T_Result* WmMatch::Search(const string& Text, const DWORD Length)
     
     for (DWORD Pos = m_Min - BLOCK_SIZE; Pos < Length; ++Pos) 
     {
-        string block = Text.substr(Pos, BLOCK_SIZE);
+        DWORD block = Text[Pos]<<3 | Text[Pos+1]<<2 |Text[Pos+2];
         
         auto shift_value = m_ShiftTable.find(block);
         if (shift_value == m_ShiftTable.end()) 
@@ -92,14 +91,18 @@ T_Result* WmMatch::Search(const string& Text, const DWORD Length)
         for (auto PIt = PtSet.begin(), PEnd = PtSet.end(); PIt != PEnd; ++PIt) 
         {
             DWORD Pid = *PIt;
-            string *Pattern = &m_Patterns[Pid];
+            string *Pattern = &(m_Patterns[Pid]);
 
             DWORD CurPos = Pos - m_Min + BLOCK_SIZE;
             DWORD Index = 0;
+
+            BYTE* Pt = (BYTE*)Pattern->c_str();
             DWORD Length = Pattern->length();
+
+            const BYTE* Tg = Text + CurPos;
             while (Index < Length) 
             {
-                if (Pattern->at(Index) != Text.at(CurPos + Index)) 
+                if (*Pt != *Tg) 
                 {
                     break;
                 }
@@ -117,5 +120,36 @@ T_Result* WmMatch::Search(const string& Text, const DWORD Length)
     }
 
 
+    for (auto it = m_Result.begin(); it != m_Result.end(); it++)
+    {
+        DWORD Id = *it;
+        DebugLog ("Pattern Matching => [%d]%s\r\n", Id, m_Patterns[Id].c_str());
+    }
+
+
 	return &m_Result;
 }
+
+
+DWORD WmTest ()
+{
+    T_Pid2Pattern Patterns;
+    Patterns[1] = "www.liwen.cn";
+    Patterns[2] = "helloworld";
+    Patterns[3] = "facebook";
+    Patterns[4] = "zoom space";
+
+    WmMatch WmTest (&Patterns);
+
+    const char*  Data = "123456666www.liwen.cn----helloworldgotoschoolfacebook";
+    T_Result *Res = WmTest.Search ((BYTE*)Data, strlen(Data));
+    assert (Res != NULL);
+
+    assert (Res->find (1) != Res->end());
+    assert (Res->find (2) != Res->end());
+    assert (Res->find (3) != Res->end());
+
+    cout<<"Wm Test ok!!!\r\n";
+        
+}
+

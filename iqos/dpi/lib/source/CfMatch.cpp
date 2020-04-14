@@ -16,7 +16,7 @@ bool Classifier::Match (T_Result* Prst, DWORD* StateNo)
     State *CurState = GetState (*StateNo);
     if (CurState == NULL)
     {
-        DebugLog ("State[%d] fetch fail...\r\n", CurStateNo);
+        DebugLog ("State[%d] fetch fail...\r\n", *StateNo);
         return false;
     }
 

@@ -5,7 +5,6 @@
  * History:
    <1> 4/02/2020 , create
 ************************************************************/
-
 #include "Capture.h"
 
 VOID Help ()
@@ -20,31 +19,6 @@ VOID Help ()
 }
 
 
-static VOID StartAsDaemon()
-{
-	pid_t pid;
-	
-	pid = fork();
-	assert(pid != -1 && "fork fail");
-	if(pid != 0)
-	{
-		exit(0);
-	}
- 
-	assert(setsid() != -1 && "setsid fail");
-	
-	pid = fork();
-	assert(pid != -1 && "fork fail");
-	if(pid != 0)
-	{
-		exit(0);
-	}
- 
-	close(0), close(1), close(2);
-	umask(0);
-	
-	return;
-}
 
 
 static VOID Analysis(BYTE *user,  struct pcap_pkthdr *Hdr, BYTE *PktData)
@@ -80,8 +54,6 @@ int main(int argc, char *argv[])
         Help();
         return 0;
     }
-    
-	StartAsDaemon();
         
     Capture Cap(Device);
     Cap.CapturePacket ((pcap_handler)Analysis);

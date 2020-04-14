@@ -12,8 +12,9 @@
 
 using namespace std;
 
-typedef unordered_map<string, DWORD> T_String2Lengh;
-typedef unordered_map<string, list<DWORD>> T_Hash;
+typedef unordered_map<DWORD, DWORD> T_String2Lengh;
+typedef unordered_map<DWORD, list<DWORD>> T_Hash;
+
 typedef unordered_map<DWORD, string> T_Pid2Pattern;
 typedef set<DWORD> T_Result;
 
@@ -23,7 +24,7 @@ class WmMatch
 public:
 	WmMatch(T_Pid2Pattern* Patterns)
 	{
-        m_Min = 0;
+        m_Min = 0xffffffff;
         m_Initialized = false;
         
         InitPatterns (Patterns);
@@ -31,12 +32,14 @@ public:
         Compile (Patterns);
 	}
     
-	virtual ~WmMatch()
+	~WmMatch()
 	{
 	}
     
 	
-	T_Result* Search(const string& Text, const DWORD Length);
+	T_Result* Search(const BYTE* Text, const DWORD Length);
+
+    DWORD WmTest ();
 
 private:
     VOID Compile(T_Pid2Pattern* Patterns);
@@ -61,7 +64,7 @@ private:
             m_Patterns[it->first] = it->second;
 
             DWORD Len = Ptn.length ();
-            if (m_Min < Len)
+            if (m_Min > Len)
             {
                 m_Min = Len;
             }

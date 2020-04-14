@@ -32,9 +32,14 @@ protected:
 public:
     Packet (BYTE* PktData, DWORD PktLen)
     {
-        m_PktData = new BYTE[PktLen];
+        m_PktData = new BYTE[PktLen+4];
         assert (m_PktData != NULL);
+        
         memcpy (m_PktData, PktData, PktLen);
+        m_PktData[PktLen]   = 0xa3;
+        m_PktData[PktLen+1] = 0xa3;
+        m_PktData[PktLen+2] = 0xa3;
+        m_PktData[PktLen+3] = 0xa3;
 
         m_PktLen  = PktLen;
     }
@@ -121,6 +126,8 @@ struct UdpHdr
 	WORD wCheckSum;    
 };
 
+typedef set<DWORD> T_IPSet;
+
 class IpPacket:public Packet
 {
 public:
@@ -138,7 +145,7 @@ private:
     DWORD Ipv4Parse (IpEthHder* EthHeader);
     DWORD ParsePacket();
 
-    set<DWORD>* m_UserIpSet;
+    T_IPSet* m_UserIpSet;
 
     inline bool IsUserIp (DWORD Ip)
     {
@@ -151,8 +158,11 @@ private:
     }
     
 public:
-    IpPacket (BYTE* PktData, DWORD PktLen, set<DWORD>* UserIpSet):Packet(PktData, PktLen)
+    IpPacket (BYTE* PktData, DWORD PktLen,  T_IPSet *UserIpSet):Packet(PktData, PktLen)
     {
+        m_SrcIp = 0;
+        m_DstIp = 0;
+        
         m_UserIpSet = UserIpSet;
         ParsePacket();
     }

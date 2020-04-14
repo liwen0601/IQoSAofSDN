@@ -22,11 +22,9 @@ IpEthHder* IpPacket::EthParse ()
 
     if (EthHeader->EthType != ETH_IPV4)
     {
-        DebugLog ("Ipv4 EthParse, Ethtype = %#x", EthHeader->EthType);
+        //DebugLog ("Ipv4 EthParse, Ethtype = %#x\r\n", EthHeader->EthType);
         return NULL;
     }
-    
-    DebugLog ("EthParse, Type = %#x", EthHeader->EthType);
 
     return EthHeader;
 }
@@ -38,7 +36,7 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
 
     if (m_PktLen < ETH_HEADER_LEN+IPHDR_LEN)
     {
-        DebugLog ("Ipv4Parse, m_PktLen = %u", m_PktLen);
+        DebugLog ("Ipv4Parse, m_PktLen = %u\r\n", m_PktLen);
         return M_FAIL;
     }
     
@@ -72,7 +70,7 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
     		{
                 if (m_PktLen < ETH_HEADER_LEN+IPHDR_LEN+TCPHDR_LEN)
                 {
-                    DebugLog ("Ipv4Parse, LV4_TCP, m_PktLen = %u", m_PktLen);
+                    DebugLog ("Ipv4Parse, LV4_TCP, m_PktLen = %u\r\n", m_PktLen);
                     return M_FAIL;
                 }
                 
@@ -115,7 +113,7 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
     		{
                 if (m_PktLen < ETH_HEADER_LEN+IPHDR_LEN+UDPHDR_LEN)
                 {
-                    DebugLog ("Ipv4Parse, LV4_UDP, m_PktLen = %u", m_PktLen);
+                    DebugLog ("Ipv4Parse, LV4_UDP, m_PktLen = %u\r\n", m_PktLen);
                     return M_FAIL;
                 }
                 
@@ -153,19 +151,19 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
     		}
     	}
 
-
+        DebugLog ("Pro: %d Src: %u-%u, Dst: %u-%u\r\n", m_ProtoType, m_SrcIp, m_SrcPort, m_DstIp, m_DstPort);
 		return M_SUCCESS;
 
 	}
 	else if(IpData[0]&0x60)
 	{
 		/* ipv6 */
-        DebugLog ("Ipv6 packets, not support..");
+        DebugLog ("Ipv6 packets, not support..\r\n");
 		return M_FAIL;
 	}
 	else
 	{
-        DebugLog ("Unsupport protocol: %#x", (DWORD)IpData[0]);
+        DebugLog ("Unsupport protocol: %#x\r\n", (DWORD)IpData[0]);
 		return M_FAIL;
 	}
      

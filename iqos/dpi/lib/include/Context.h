@@ -10,11 +10,11 @@
 #define _CONTEXT_H_
 #include <BasicType.h>
 #include <Log.h>
-#include <Packet.h>
 #include <Classifier.h>
+#include <PakcetSet.h>
+
 
 using namespace std;
-
 
 
 class CfCtxt
@@ -93,23 +93,23 @@ public:
         {
             if (L.m_SrcIp != R.m_SrcIp)
             {
-                return L.m_SrcIp < R.m_SrcIp;
+                return (L.m_SrcIp < R.m_SrcIp);
             }
             else if (L.m_DstIp != R.m_DstIp)
             {
-                return L.m_DstIp < R.m_DstIp;
+                return (L.m_DstIp < R.m_DstIp);
             }
             else if (L.m_SrcPort != R.m_SrcPort)
             {
-                return L.m_SrcIp < R.m_SrcIp;
+                return (L.m_SrcPort < R.m_SrcPort);
             }
             else if (L.m_DstPort != R.m_DstPort)
             {
-                return L.m_DstPort < R.m_DstPort;
+                return (L.m_DstPort < R.m_DstPort);
             }
             else
             {
-                return L.m_ProtoType < R.m_ProtoType;
+                return (L.m_ProtoType < R.m_ProtoType);
             }
         }
     } EqualFlow; 
@@ -129,7 +129,7 @@ private:
 public:
     User (DWORD IpAddr)
     {
-
+        m_Ipaddr = IpAddr;
     }
 
     inline DWORD GetIpAddr ()
@@ -145,6 +145,7 @@ public:
             return NULL;
         }
 
+        //DebugLog ("Add flow-Pro: %d Src: %u-%u, Dst: %u-%u\r\n", F.m_ProtoType, F.m_SrcIp, F.m_SrcPort, F.m_DstIp, F.m_DstPort);
         return (Flow*)(&(*It.first));        
     }
 
@@ -159,13 +160,18 @@ public:
         return AddFlow (F);        
     }
 
+    inline T_FlowSet* GetFlowSet ()
+    {
+        return &m_FlowSet;        
+    }
+
     typedef struct 
     {
         bool operator()(User L, User R) 
         {
             if (L.m_Ipaddr != R.m_Ipaddr)
             {
-                return L.m_Ipaddr < R.m_Ipaddr;
+                return (L.m_Ipaddr < R.m_Ipaddr);
             }
             
             return 0;
@@ -175,36 +181,16 @@ public:
 
 
 typedef set<User, typename User::EqualUser> T_UsetSet;
-typedef set<DWORD> T_UserIpSet;
-
 
 class ClassifyEngine
 {
 private:
-    T_UserIpSet m_UserIpSet;
     T_UsetSet m_UserSet;
     CfManage *m_CfMng;
+    PacketSet *m_PacketSet;
 
-public:
-    ClassifyEngine (T_UserIpSet &UserIpSet, CfManage *CfMng)
-    {
-        for (auto It = UserIpSet.begin(); It != UserIpSet.end(); It++)
-        {
-            m_UserIpSet.insert (*It);
-        }
-
-        m_CfMng = CfMng;
-        assert (m_CfMng != NULL);
-    }
-
-    ~ClassifyEngine ()
-    {
-        
-    }
-
-    string ClassifyFlow (IpPacket *Pkt); 
-
-    inline User *AddUser(User &U)
+private:
+    inline User *AddUser(User U)
     {
         auto It = m_UserSet.insert (U);
         if (It.second == false)
@@ -220,11 +206,70 @@ public:
         auto It = m_UserSet.find (U);
         if (It != m_UserSet.end())
         {
-            (User *)(&(*It));
+            return (User *)(&(*It));
         }
 
         return AddUser (U);        
     }
+
+    inline DWORD GetUserCount ()
+    {
+        return m_UserSet.size();
+    }
+
+    inline Flow* QueryFlow (IpPacket *Pkt)
+    {
+        DWORD CfId;
+        
+        User *Uctxt = GetUser (User (Pkt->m_SrcIp));
+        assert (Uctxt != NULL);
+
+        Flow *Fctxt = Uctxt->GetFlow (Flow(Pkt->m_SrcIp, Pkt->m_DstIp, 
+                                      Pkt->m_SrcPort, Pkt->m_DstPort, 
+                                      Pkt->m_ProtoType)
+                                     );
+        assert (Fctxt != NULL);
+
+        return Fctxt;
+    }
+
+    inline DWORD GetFlowCount ()
+    {
+        DWORD FlowCount = 0;
+        for (auto ItU = m_UserSet.begin(); ItU != m_UserSet.end(); ItU++)
+        {
+            User *U = (User *)&(*ItU);
+            T_FlowSet *F = U->GetFlowSet();
+
+            FlowCount += F->size();
+        }
+
+        return FlowCount;
+    }
+
+    DWORD Classify (IpPacket *Pkt);
+
+public:
+    ClassifyEngine (PacketSet *PtSet)
+    {
+        m_CfMng = new CfManage ();
+        assert (m_CfMng != NULL);
+
+        m_PacketSet = PtSet;
+    }
+
+    ~ClassifyEngine ()
+    {
+        if (m_CfMng != NULL)
+        {
+            delete m_CfMng;
+        }
+        
+    }
+
+    DWORD Query (IpPacket *Pkt);
+    VOID Analysis ();
+    
 };
 
 

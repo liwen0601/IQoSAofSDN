@@ -7,23 +7,26 @@
 ************************************************************/
 #include "Context.h"
 
-string ClassifyEngine::ClassifyFlow (IpPacket *Pkt)
+DWORD ClassifyEngine::Query (IpPacket *Pkt)
+{
+    Flow *Fctxt = QueryFlow (Pkt);
+    assert (Fctxt != NULL);
+
+    return Fctxt->GetCfId ();
+}
+
+
+DWORD ClassifyEngine::Classify (IpPacket *Pkt)
 {
     DWORD CfId;
     
-    User *Uctxt = GetUser (User (Pkt->m_SrcIp));
-    assert (Uctxt != NULL);
-
-    Flow *Fctxt = Uctxt->GetFlow (Flow(Pkt->m_SrcIp, Pkt->m_DstIp, 
-                                  Pkt->m_SrcPort, Pkt->m_DstPort, 
-                                  Pkt->m_ProtoType)
-                                 );
+    Flow *Fctxt = QueryFlow (Pkt);
     assert (Fctxt != NULL);
 
     CfId = Fctxt->GetCfId ();
     if (CfId != 0)
     {
-        return m_CfMng->GetCfName (CfId);
+        return CfId;
     }
 
     T_Result *PtnRst = m_CfMng->PatternMach (Pkt->m_Payload, Pkt->m_PayloadLen);
@@ -46,14 +49,49 @@ string ClassifyEngine::ClassifyFlow (IpPacket *Pkt)
         if (IsFin)
         {
             Fctxt->SetCfId (Cf->GetId());
-            return Cf->GetName ();
+            return Cf->GetId();
         }
     }
 
-    return "None";
+    return 0;
 }
 
 
+VOID ClassifyEngine::Analysis ()
+{
+    IpPacket *Ip;
+    
+    while (!m_PacketSet->IsEmpty ())
+    {
+        Ip = m_PacketSet->Pop ();
+
+        Classify (Ip);
+    }
+}
+
+
+
+VOID ContextTest ()
+{
+    User U (111);
+
+    T_FlowSet *Fs = U.GetFlowSet ();
+
+    Flow *F1 = U.GetFlow (Flow(111, 222, 1, 2, 6));
+    assert (Fs->size() == 1);
+
+    Flow *F2 = U.GetFlow (Flow(111, 333, 1, 2, 6));
+    assert (Fs->size() == 2);
+    
+    Flow *F3 = U.GetFlow (Flow(111, 444, 1, 2, 6));
+    assert (Fs->size() == 3);
+
+    Flow *F4 = U.GetFlow (Flow(111, 222, 1, 2, 6));
+    assert (Fs->size() == 3);
+
+    Flow *F5 = U.GetFlow (Flow(111, 333, 1, 2, 6));
+    assert (Fs->size() == 3);
+}
 
 
 

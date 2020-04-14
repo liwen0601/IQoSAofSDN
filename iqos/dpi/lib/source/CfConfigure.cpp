@@ -43,6 +43,38 @@ VOID CfManage::Init ()
 
     MapPatternCf (Pid0, Office365);
     }
+
+    //#######################################################
+    // QQ
+    //#######################################################
+    {
+    Classifier *QQ = NewClassifier ("QQ", IPV4_VERSION, 80);
+
+    /* add State */
+    State *State0 = QQ->NewState (false);
+    State *State1 = QQ->NewState (true);
+    
+    DWORD Pid0 = NewPattern ("Host: www.qq.com");
+    State0->AddNextState (Pid0, State1->GetId ());
+
+    MapPatternCf (Pid0, QQ);
+    }
+
+    //#######################################################
+    // BNJP
+    //#######################################################
+    {
+    Classifier *BJNP = NewClassifier ("BJNP", IPV4_VERSION, 0);
+
+    /* add State */
+    State *State0 = BJNP->NewState (false);
+    State *State1 = BJNP->NewState (true);
+    
+    DWORD Pid0 = NewPattern ("BJNP");
+    State0->AddNextState (Pid0, State1->GetId ());
+
+    MapPatternCf (Pid0, BJNP);
+    }
 } 
 
 

@@ -146,6 +146,8 @@ private:
 public:
     CfManage ()
     {
+        Init ();
+        
         m_Wm = new WmMatch (&m_Id2Pattern);
         assert (m_Wm != NULL);
     }
@@ -169,7 +171,7 @@ public:
 
     inline DWORD NewPattern (string Pattern)
     {
-        DWORD Pid = m_Id2Pattern.size();
+        DWORD Pid = m_Id2Pattern.size()+1;
 
         m_Id2Pattern[Pid] = Pattern;
 
@@ -193,7 +195,7 @@ public:
     
     inline T_Result* PatternMach (BYTE* Data, DWORD Length)
     {
-        T_Result *Rst = m_Wm->Search (string ((char*)Data), Length);
+        T_Result *Rst = m_Wm->Search (Data, Length);
     
         return Rst;
     }
