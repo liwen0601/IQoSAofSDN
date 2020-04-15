@@ -45,7 +45,7 @@ DWORD ClassifyEngine::Classify (IpPacket *Pkt)
         Classifier *Cf = *Cit;
         CfCtxt *Ctx = Fctxt->GetCfCtext (Cf);
 
-        bool IsFin = Cf->Match (PtnRst, &Ctx->m_CurState);
+        bool IsFin = Cf->Match (PtnRst, &Ctx->m_CurState, Fctxt->m_DstPort);
         if (IsFin)
         {
             Fctxt->SetCfId (Cf->GetId());

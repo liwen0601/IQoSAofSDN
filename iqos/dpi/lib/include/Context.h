@@ -209,6 +209,8 @@ private:
     CfManage *m_CfMng;
     PacketSet *m_PacketSet;
 
+    pthread_mutex_t m_Mutex;
+
 private:
     inline User *AddUser(User U)
     {
@@ -224,7 +226,8 @@ private:
     inline User* GetUser (User U)
     {
         User *Utx;
-        
+
+        pthread_mutex_lock(&m_Mutex);
         auto It = m_UserSet.find (U);
         if (It != m_UserSet.end())
         {
@@ -234,6 +237,7 @@ private:
         {
             Utx = AddUser (U);
         }
+        pthread_mutex_unlock(&m_Mutex);
 
         return Utx;        
     }
@@ -269,6 +273,8 @@ public:
         assert (m_CfMng != NULL);
 
         m_PacketSet = PtSet;
+
+        pthread_mutex_init(&m_Mutex, NULL);
     }
 
     ~ClassifyEngine ()

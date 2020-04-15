@@ -9,9 +9,15 @@
 #include "Classifier.h"
 
 
-bool Classifier::Match (T_Result* Prst, DWORD* StateNo)
+bool Classifier::Match (T_Result* Prst, DWORD* StateNo, DWORD DstPort)
 {
     DWORD NxtStateNo = 0;
+
+    if (m_Port != 0 && m_Port != DstPort)
+    {
+        DebugLog ("m_Port[%u] <-> [%u] match fail...\r\n", m_Port, DstPort);
+        return false;
+    }
     
     State *CurState = GetState (*StateNo);
     if (CurState == NULL)

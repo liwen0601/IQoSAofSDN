@@ -28,22 +28,19 @@ VOID TCPserver::Init (DWORD Port)
 	return;
 }
 
-
-DWORD TCPserver::Start()
+void *ProxyThread (void* Arg)
 {
-    socklen_t SockLen = sizeof (struct sockaddr_in);
-    struct sockaddr_in ClientAddr;
-    char Message[1500] = {0};
-
-    int Socket = accept(m_Socket, (struct sockaddr*)&ClientAddr, &SockLen);
-    if(Socket < 0)
-    {
-        DebugLog ("Receive a connection\r\n");
-        return M_FAIL;
-    }
-
-    DebugLog ("Receive a connection:%s-%d\r\n",\
-              inet_ntoa(ClientAddr.sin_addr), ClientAddr.sin_port);
+    char Message[1500];
+    
+    Proxy *P = (Proxy *)Arg;
+    TCPserver *Srver = P->m_Server;
+    int Socket = P->m_Socket;
+    delete P;
+    
+    PacketSet* PktSet  = Srver->GetPktSet ();
+    T_IPSet* UserIpSet = Srver->GetIpSet ();
+    ClassifyEngine* CfEngine = Srver->GetCfEngine ();
+     
     while (1)
     { 
         long RecvBytes = recv(Socket, Message, sizeof(Message), 0);
@@ -53,17 +50,17 @@ DWORD TCPserver::Start()
             continue;
         }
 
-        IpPacket *Ip = new IpPacket ((BYTE*)Message, RecvBytes, m_UserIpSet);
+        IpPacket *Ip = new IpPacket ((BYTE*)Message, RecvBytes, UserIpSet);
         assert (Ip != NULL);
 
         DWORD CfId = 0;
         if (Ip->m_SrcIp != 0)
         {
-            CfId = m_CfEngine->Query (Ip);
+            CfId = CfEngine->Query (Ip);
             if (CfId == 0)
             {
                 DebugLog ("Push packet: %p \r\n", Ip);
-                m_PacketSet->Push (Ip);
+                PktSet->Push (Ip);
             }
         }
         else
@@ -76,6 +73,33 @@ DWORD TCPserver::Start()
     }
 
     close (Socket);
+    return NULL;
+}
+
+
+
+DWORD TCPserver::Start()
+{
+    pthread_t Tid;
+    socklen_t SockLen = sizeof (struct sockaddr_in);
+    struct sockaddr_in ClientAddr;
+
+    while (1)
+    {
+        int Socket = accept(m_Socket, (struct sockaddr*)&ClientAddr, &SockLen);
+        if(Socket < 0)
+        {
+            return M_FAIL;
+        }
+
+        DebugLog ("Receive a connection:%s-%d\r\n",\
+                  inet_ntoa(ClientAddr.sin_addr), ClientAddr.sin_port);
+
+        Proxy *P = new Proxy(this, Socket);
+        int Ret = pthread_create(&Tid, NULL, ProxyThread, P);
+        assert (Ret == 0);
+    }
+    
 
     return M_SUCCESS;
 }

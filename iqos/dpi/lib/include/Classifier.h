@@ -127,7 +127,7 @@ public:
         return m_Id;
     }
 
-    bool Match (T_Result* Prst, DWORD* StateNo);
+    bool Match (T_Result* Prst, DWORD* StateNo, DWORD DstPort);
 };
 
 

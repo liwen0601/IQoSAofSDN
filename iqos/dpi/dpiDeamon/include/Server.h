@@ -38,9 +38,35 @@ public:
         Init (Port);
     }
 
+    inline PacketSet* GetPktSet ()
+    {
+        return m_PacketSet;
+    }
+
+    inline T_IPSet* GetIpSet ()
+    {
+        return m_UserIpSet;
+    }
+
+    inline ClassifyEngine* GetCfEngine ()
+    {
+        return m_CfEngine;
+    }
+
     DWORD Start();
 };
 
 
+struct Proxy
+{
+    Proxy (TCPserver *Server, int Socket)
+    {
+        m_Server = Server;
+        m_Socket = Socket;
+    }
+    
+    TCPserver *m_Server;
+    int m_Socket;
+};
 
 #endif 
