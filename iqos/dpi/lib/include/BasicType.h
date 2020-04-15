@@ -62,4 +62,11 @@ typedef unsigned int     BOOL;
 #define CLOCK_IN_SEC()  (time((time_t*)NULL))
 
 
+#define USER_IP_PROPERTITY  ("ip.properties")
+
+#define CF_ID_BEGIN         (2000)
+#define CF_SUPPORT_FILE     ("SupportProtocol.txt")
+
+
+
 #endif

@@ -60,12 +60,14 @@ DWORD ClassifyEngine::Classify (IpPacket *Pkt)
 VOID ClassifyEngine::Analysis ()
 {
     IpPacket *Ip;
-    
+
     while (!m_PacketSet->IsEmpty ())
     {
         Ip = m_PacketSet->Pop ();
 
         Classify (Ip);
+
+        delete Ip;
     }
 }
 

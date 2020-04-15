@@ -124,12 +124,13 @@ public:
     
 private:
     T_FlowSet m_FlowSet;
-    DWORD m_TimeStamp;
+    pthread_mutex_t m_Mutex;
 
 public:
     User (DWORD IpAddr)
     {
         m_Ipaddr = IpAddr;
+        pthread_mutex_init(&m_Mutex, NULL);
     }
 
     inline DWORD GetIpAddr ()
@@ -151,18 +152,37 @@ public:
 
     inline Flow* GetFlow (Flow F)
     {
+        Flow* Fctx;
+        
+        pthread_mutex_lock(&m_Mutex);
         auto It = m_FlowSet.find (F);
         if (It != m_FlowSet.end())
         {
-            return (Flow*)(&(*It));
+            Fctx = (Flow*)(&(*It));
         }
+        else
+        {
+            Fctx = AddFlow (F);
+        }
+   
+        pthread_mutex_unlock(&m_Mutex);
 
-        return AddFlow (F);        
+        return Fctx;
     }
 
     inline T_FlowSet* GetFlowSet ()
     {
         return &m_FlowSet;        
+    }
+
+    inline T_FlowSet::iterator begin ()
+    {
+        return m_FlowSet.begin();
+    }
+
+    inline T_FlowSet::iterator end ()
+    {
+        return m_FlowSet.end();
     }
 
     typedef struct 
@@ -203,13 +223,19 @@ private:
     
     inline User* GetUser (User U)
     {
+        User *Utx;
+        
         auto It = m_UserSet.find (U);
         if (It != m_UserSet.end())
         {
-            return (User *)(&(*It));
+            Utx = (User *)(&(*It));
+        }
+        else
+        {
+            Utx = AddUser (U);
         }
 
-        return AddUser (U);        
+        return Utx;        
     }
 
     inline DWORD GetUserCount ()
@@ -233,19 +259,6 @@ private:
         return Fctxt;
     }
 
-    inline DWORD GetFlowCount ()
-    {
-        DWORD FlowCount = 0;
-        for (auto ItU = m_UserSet.begin(); ItU != m_UserSet.end(); ItU++)
-        {
-            User *U = (User *)&(*ItU);
-            T_FlowSet *F = U->GetFlowSet();
-
-            FlowCount += F->size();
-        }
-
-        return FlowCount;
-    }
 
     DWORD Classify (IpPacket *Pkt);
 
@@ -269,6 +282,16 @@ public:
 
     DWORD Query (IpPacket *Pkt);
     VOID Analysis ();
+
+    inline T_UsetSet::iterator begin ()
+    {
+        return m_UserSet.begin();
+    }
+
+    inline T_UsetSet::iterator end ()
+    {
+        return m_UserSet.end();
+    }
     
 };
 

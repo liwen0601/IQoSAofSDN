@@ -9,38 +9,17 @@
 #include <Log.h>
 
 
-IpEthHder* IpPacket::EthParse ()
-{
-    if (m_PktLen < ETH_HEADER_LEN)
-    {
-        DebugLog ("EthParse, m_PktLen = %u", m_PktLen);
-        return NULL;
-    }
-    
-    IpEthHder *EthHeader = (IpEthHder*)m_PktData;
-    EthHeader->EthType = ntohs(EthHeader->EthType);
-
-    if (EthHeader->EthType != ETH_IPV4)
-    {
-        //DebugLog ("Ipv4 EthParse, Ethtype = %#x\r\n", EthHeader->EthType);
-        return NULL;
-    }
-
-    return EthHeader;
-}
-
-
-DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
+DWORD IpPacket::Ipv4Parse ()
 {
     BYTE *IpData;
 
-    if (m_PktLen < ETH_HEADER_LEN+IPHDR_LEN)
+    if (m_PktLen < IPHDR_LEN)
     {
         DebugLog ("Ipv4Parse, m_PktLen = %u\r\n", m_PktLen);
         return M_FAIL;
     }
     
-    Ipv4Hdr* Ipv4Header = (Ipv4Hdr*)((BYTE*)EthHeader + ETH_HEADER_LEN);
+    Ipv4Hdr* Ipv4Header = (Ipv4Hdr*)m_PktData;
     
     IpData = (BYTE *)Ipv4Header;
     if(IpData[0]&0x40)
@@ -55,9 +34,9 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
 		}
 
 		Ipv4Header->total_len = ntohs(Ipv4Header->total_len);
-        if (Ipv4Header->total_len+ETH_HEADER_LEN > m_PktLen)
+        if (Ipv4Header->total_len > m_PktLen)
         {
-            Ipv4Header->total_len = m_PktLen - ETH_HEADER_LEN;
+            Ipv4Header->total_len = m_PktLen;
         }
 
         Ipv4Header->destIP   = ntohl(Ipv4Header->destIP);
@@ -68,7 +47,7 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
     	{
     	case LV4_TCP:
     		{
-                if (m_PktLen < ETH_HEADER_LEN+IPHDR_LEN+TCPHDR_LEN)
+                if (m_PktLen < IPHDR_LEN+TCPHDR_LEN)
                 {
                     DebugLog ("Ipv4Parse, LV4_TCP, m_PktLen = %u\r\n", m_PktLen);
                     return M_FAIL;
@@ -87,8 +66,9 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
     			THdr->dwSeqNum = ntohl(THdr->dwSeqNum);
 
                 m_ProtoType = LV4_TCP;
-                m_PayloadLen = m_PktLen-(ETH_HEADER_LEN+IPHDR_LEN+TcpHdrLen);
+                m_PayloadLen = m_PktLen-(IPHDR_LEN+TcpHdrLen);
                 m_Payload    = (BYTE*)(THdr+1);
+                DebugLog ("m_PktLen = %u, m_PayloadLen = %u, TcpHdrLen = %u\r\n",m_PktLen, m_PayloadLen, TcpHdrLen);
                 
                 if (IsUserIp (Ipv4Header->sourceIP))
                 {
@@ -98,7 +78,7 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
                     m_SrcPort = THdr->wSrcPort;
                     m_DstPort = THdr->wDstPort;
                 }
-                else
+                else if (IsUserIp (Ipv4Header->destIP))
                 {
                     m_SrcIp = Ipv4Header->destIP;
                     m_DstIp = Ipv4Header->sourceIP;
@@ -106,12 +86,15 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
                     m_SrcPort = THdr->wDstPort;
                     m_DstPort = THdr->wSrcPort;
                 }
+                else
+                {
+                }
     						
     			break;
     		}
     	case LV4_UDP:
     		{
-                if (m_PktLen < ETH_HEADER_LEN+IPHDR_LEN+UDPHDR_LEN)
+                if (m_PktLen < IPHDR_LEN+UDPHDR_LEN)
                 {
                     DebugLog ("Ipv4Parse, LV4_UDP, m_PktLen = %u\r\n", m_PktLen);
                     return M_FAIL;
@@ -123,7 +106,7 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
     			UHdr->wDstPort = ntohs(UHdr->wDstPort);
 
                 m_ProtoType = LV4_UDP;
-                m_PayloadLen = m_PktLen-(ETH_HEADER_LEN+IPHDR_LEN+UDPHDR_LEN);
+                m_PayloadLen = m_PktLen-(IPHDR_LEN+UDPHDR_LEN);
                 m_Payload    = (BYTE*)(UHdr+1);
                 
                 if (IsUserIp (Ipv4Header->sourceIP))
@@ -134,13 +117,16 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
                     m_SrcPort = UHdr->wSrcPort;
                     m_DstPort = UHdr->wDstPort;
                 }
-                else
+                else if (IsUserIp (Ipv4Header->destIP))
                 {
                     m_SrcIp = Ipv4Header->destIP;
                     m_DstIp = Ipv4Header->sourceIP;
 
                     m_SrcPort = UHdr->wDstPort;
                     m_DstPort = UHdr->wSrcPort;
+                }
+                else
+                {
                 }
 
     			break;
@@ -169,16 +155,4 @@ DWORD IpPacket::Ipv4Parse (IpEthHder* EthHeader)
      
 }
     
-
-DWORD IpPacket::ParsePacket()
-{
-    IpEthHder* EthHeader = EthParse ();
-    if (EthHeader == NULL)
-    {
-        return M_FAIL;
-    }
-
-    
-    return Ipv4Parse (EthHeader);	
-}
 

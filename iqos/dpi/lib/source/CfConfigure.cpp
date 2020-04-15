@@ -8,6 +8,24 @@
 #include "Classifier.h"
 #include "Packet.h"
 
+VOID CfManage::Dump ()
+{
+    FILE *F = fopen (CF_SUPPORT_FILE, "w");
+    if (F == NULL)
+    {
+        return;
+    }
+
+    fprintf (F, "%-32s %-8s\r\n", "ProtocolName", "ProtocolID");
+    for (auto it = m_CfId2Cf.begin(); it != m_CfId2Cf.end(); it++)
+    {
+        fprintf (F, "%-32s %-8u\r\n", it->second->GetName ().c_str(), it->first);
+    }
+
+    fclose (F);
+    return;
+}
+
 
 VOID CfManage::Init ()
 {
@@ -75,6 +93,13 @@ VOID CfManage::Init ()
 
     MapPatternCf (Pid0, BJNP);
     }
+
+
+
+    //#######################################################
+    // END
+    //#######################################################
+    Dump ();
 } 
 
 

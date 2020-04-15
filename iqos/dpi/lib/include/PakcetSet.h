@@ -49,9 +49,14 @@ public:
         return Pkt;
     }
 
+    inline DWORD Size ()
+    {
+        return m_PacketSet.size();
+    }
+
     inline bool IsEmpty ()
     {
-        return m_PacketSet.empty();
+        return (Size () == 0);
     }
     
 };

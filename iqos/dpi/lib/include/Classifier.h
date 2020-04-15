@@ -142,6 +142,9 @@ private:
 
     T_Id2Classifier m_Ptn2Cf;
     WmMatch *m_Wm;
+
+private:
+    VOID Dump ();
     
 public:
     CfManage ()
@@ -159,7 +162,7 @@ public:
 
     inline Classifier* NewClassifier (string Name, DWORD Lv4Type, DWORD Port=0)
     {
-        DWORD CfId = m_CfId2Cf.size();
+        DWORD CfId = m_CfId2Cf.size() + CF_ID_BEGIN;
         
         Classifier* Cf = new Classifier (Name, CfId, Lv4Type, Port);
         assert (Cf != NULL);

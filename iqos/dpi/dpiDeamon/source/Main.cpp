@@ -6,6 +6,7 @@
    <1> 4/02/2020 , create
 ************************************************************/
 #include "Server.h"
+#include "Shell.h"
 
 
 VOID Help ()
@@ -21,10 +22,25 @@ VOID Help ()
 
 static inline T_IPSet* GetUserIpSet ()
 {
+    char IPaddr[128];
     static T_IPSet UserIp;
+    
+    FILE *F = fopen (USER_IP_PROPERTITY, "r");
+    if (F == NULL)
+    {
+        UserIp.insert (ntohl(inet_addr("192.168.159.130")));
+    }
+    else
+    {
+        while (!feof(F))
+        {
+            fgets (IPaddr, sizeof (IPaddr), F);
 
-    UserIp.insert (ntohl(inet_addr("192.168.159.130")));
+            UserIp.insert (ntohl(inet_addr(IPaddr)));
+        }
 
+        fclose (F);
+    }
 
     return &UserIp;
 }
@@ -45,19 +61,34 @@ void *DpiAnalysis (void* Arg)
     return NULL;
 }
 
+void *ShellThread (void* Arg)
+{
+    string Comand;
+    CmdShell *Shell = (CmdShell*)Arg;
+
+    while (1)
+    {
+        cout<<"shell>";
+        cin >> Comand;
+
+        Shell->ExeCmd (Comand);
+    }
+    
+    return NULL;
+}
 
 
 int main(int argc, char *argv[])
 {
     char ch;
-    DWORD Port;
+    DWORD Port = 9163;
     pthread_t Tid;
     
     while((ch = getopt(argc, argv, "p:")) != -1)
     {
         switch(ch)
         {
-            case 'd':
+            case 'p':
             {
                 Port = atoi(optarg);
                 if (Port == 0)
@@ -78,8 +109,11 @@ int main(int argc, char *argv[])
     T_IPSet *IpSet = GetUserIpSet ();
 
     ClassifyEngine CfEngine (&PtSet);
-
     int Ret = pthread_create(&Tid, NULL, DpiAnalysis, &CfEngine);
+    assert (Ret == 0);
+
+    CmdShell Shell (&CfEngine);
+    Ret = pthread_create(&Tid, NULL, ShellThread, &Shell);
     assert (Ret == 0);
     
     TCPserver Server (Port, &PtSet, IpSet, &CfEngine);

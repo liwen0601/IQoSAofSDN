@@ -9,14 +9,14 @@ HEADER_DIR = include
 OBJ_PATH = obj
 
 CUR_INCLUDES = -I$(HEADER_DIR) -I$(LIB_PATH)/include
-CUR_CFLAGS = $(CFLAGS)
+CUR_CFLAGS = $(CFLAGS) -D_DEBUG_
 
-CUR_LD_CFLAGES = $(LD_CFLAGES) $(LIB_PATH)/libdpi.so -lpcap 
+CUR_LD_CFLAGES = $(LD_CFLAGES) -lpcap 
 
 SOURCE_FILES = $(wildcard $(SOURCE_DIR)/*.cpp)
 OBJ_FILES = $(addprefix $(OBJ_PATH)/, $(addsuffix .o,$(notdir $(basename $(SOURCE_FILES)))))
 
-TARGET = dpiDeamon
+TARGET = dpiClient
 
 .PHONY:all clean
 

@@ -12,8 +12,6 @@ const static DWORD BLOCK_SIZE = 3;
 
 void WmMatch::Compile(T_Pid2Pattern *Patterns) 
 {
-	cout << "===> m_Min: " << m_Min <<endl;
-
 	for (auto ItP = Patterns->begin(), EndP = Patterns->end(); ItP != EndP; ItP++) 
     {
         BYTE *Ptn = (BYTE*)((ItP->second).c_str());

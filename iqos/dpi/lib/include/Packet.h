@@ -24,10 +24,6 @@ class Packet
 protected:
     DWORD m_PktLen;
     BYTE* m_PktData;
-
-protected:
-        
-    virtual DWORD ParsePacket() = 0;
     
 public:
     Packet (BYTE* PktData, DWORD PktLen)
@@ -141,10 +137,7 @@ public:
     BYTE* m_Payload;
 
 private:
-    IpEthHder* EthParse ();
-    DWORD Ipv4Parse (IpEthHder* EthHeader);
-    DWORD ParsePacket();
-
+    DWORD Ipv4Parse ();
     T_IPSet* m_UserIpSet;
 
     inline bool IsUserIp (DWORD Ip)
@@ -158,13 +151,13 @@ private:
     }
     
 public:
-    IpPacket (BYTE* PktData, DWORD PktLen,  T_IPSet *UserIpSet):Packet(PktData, PktLen)
+    IpPacket (BYTE* PktData, DWORD PktLen, T_IPSet *UserIpSet):Packet(PktData, PktLen)
     {
         m_SrcIp = 0;
         m_DstIp = 0;
         
         m_UserIpSet = UserIpSet;
-        ParsePacket();
+        Ipv4Parse();
     }
 };
 

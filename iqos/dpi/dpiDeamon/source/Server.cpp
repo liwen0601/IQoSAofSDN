@@ -16,14 +16,14 @@ VOID TCPserver::Init (DWORD Port)
     m_AddrIn.sin_addr.s_addr = INADDR_ANY;
     m_AddrIn.sin_port = htons(Port);
 
-    m_Socket = socket(PF_INET, SOCK_DGRAM, 0);
+    m_Socket = socket(PF_INET, SOCK_STREAM, 0);
     assert (m_Socket > 0);
 
     int Ret = bind(m_Socket, (struct sockaddr *)&m_AddrIn, sizeof(m_AddrIn)); 
-    assert (Ret > 0);
+    assert (Ret >= 0);
 
     Ret = listen(m_Socket, 10);
-    assert (Ret > 0);
+    assert (Ret >= 0);
     
 	return;
 }
@@ -35,40 +35,48 @@ DWORD TCPserver::Start()
     struct sockaddr_in ClientAddr;
     char Message[1500] = {0};
 
-    while( 1 ) 
+    int Socket = accept(m_Socket, (struct sockaddr*)&ClientAddr, &SockLen);
+    if(Socket < 0)
     {
-        int Socket = accept(m_Socket, (struct sockaddr*)&ClientAddr, &SockLen);
-        if(Socket < 0)
-        {
-            continue;
-        }
-
         DebugLog ("Receive a connection\r\n");
-        
+        return M_FAIL;
+    }
+
+    DebugLog ("Receive a connection:%s-%d\r\n",\
+              inet_ntoa(ClientAddr.sin_addr), ClientAddr.sin_port);
+    while (1)
+    { 
         long RecvBytes = recv(Socket, Message, sizeof(Message), 0);
         if (RecvBytes == 0)
         {
-            close (Socket);
+            DebugLog ("Receive RecvBytes == 0\r\n");
             continue;
         }
 
         IpPacket *Ip = new IpPacket ((BYTE*)Message, RecvBytes, m_UserIpSet);
-        assert (Ip == NULL);
+        assert (Ip != NULL);
 
-        DWORD CfId = m_CfEngine->Query (Ip);
-        if (CfId == 0)
+        DWORD CfId = 0;
+        if (Ip->m_SrcIp != 0)
         {
-            m_PacketSet->Push (Ip);
+            CfId = m_CfEngine->Query (Ip);
+            if (CfId == 0)
+            {
+                DebugLog ("Push packet: %p \r\n", Ip);
+                m_PacketSet->Push (Ip);
+            }
         }
         else
         {
-            DebugLog ("classify flow as: %d \r\n", CfId);
-            send(Socket, &CfId, sizeof(CfId) , 0);
+            delete Ip;            
         }
-
-        close (Socket);
-    }
         
+        DebugLog ("classify flow as: %d \r\n", CfId);
+        send(Socket, &CfId, sizeof(CfId) , 0);
+    }
 
+    close (Socket);
+
+    return M_SUCCESS;
 }
 

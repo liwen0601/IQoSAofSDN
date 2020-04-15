@@ -12,7 +12,7 @@ export LIB_PATH = $(ROOT_PATH)/lib
 export CFLAGS     = -std=c++11 -g -O3
 export LD_CFLAGES = -lstdc++ -lpthread 
 
-SUBDIRS = lib tool
+SUBDIRS = lib dpiClient dpiDeamon
 
 $(SUBDIRS):init
 	for subdir in $(SUBDIRS);\
