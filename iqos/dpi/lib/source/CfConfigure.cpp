@@ -37,12 +37,42 @@ VOID CfManage::Init ()
 
     /* add State */
     State *State0 = Google->NewState (false);
-    State *State1 = Google->NewState (true);
     
-    DWORD Pid0 = NewPattern ("www.google.com");
+    State *State1 = Google->NewState (true);   
+    DWORD Pid0 = NewPattern (".google.com");
     State0->AddNextState (Pid0, State1->GetId ());
-
     MapPatternCf (Pid0, Google);
+
+    State *State2 = Google->NewState (true);    
+    DWORD Pid1 = NewPattern ("www.google-analytics.com");
+    State0->AddNextState (Pid1, State2->GetId ());
+    MapPatternCf (Pid1, Google); 
+    
+    }
+
+    //#######################################################
+    // Youtube
+    //#######################################################
+    {
+    Classifier *Youtube = NewClassifier ("Youtube", IPV4_VERSION, 443);
+
+    /* add State */
+    State *State0 = Youtube->NewState (false);
+    
+    State *State1 = Youtube->NewState (true);
+    DWORD Pid0 = NewPattern ("yt3.ggpht.com");
+    State0->AddNextState (Pid0, State1->GetId ());
+    MapPatternCf (Pid0, Youtube);
+
+    State *State2 = Youtube->NewState (true);
+    DWORD Pid1 = NewPattern (".ytimg.com");
+    State0->AddNextState (Pid1, State2->GetId ());
+    MapPatternCf (Pid1, Youtube);
+
+    State *State3 = Youtube->NewState (true);
+    DWORD Pid2 = NewPattern ("www.youtube.com");
+    State0->AddNextState (Pid2, State3->GetId ());
+    MapPatternCf (Pid2, Youtube);
     }
 
     //#######################################################
@@ -187,12 +217,21 @@ VOID CfManage::Init ()
 
     /* add State */
     State *State0 = Overleaf->NewState (false);
-    State *State1 = Overleaf->NewState (true);
     
+    State *State1 = Overleaf->NewState (true);   
     DWORD Pid0 = NewPattern ("www.overleaf.com");
     State0->AddNextState (Pid0, State1->GetId ());
-
     MapPatternCf (Pid0, Overleaf);
+
+    State *State2 = Overleaf->NewState (true);   
+    DWORD Pid1 = NewPattern ("cdn.overleaf.com");
+    State0->AddNextState (Pid1, State2->GetId ());
+    MapPatternCf (Pid1, Overleaf);
+
+    State *State3 = Overleaf->NewState (true);   
+    DWORD Pid2 = NewPattern ("compiles.overleaf.com");
+    State0->AddNextState (Pid2, State3->GetId ());
+    MapPatternCf (Pid2, Overleaf);
     }
 
 

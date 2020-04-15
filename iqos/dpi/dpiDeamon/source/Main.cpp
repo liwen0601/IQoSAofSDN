@@ -34,7 +34,11 @@ static inline T_IPSet* GetUserIpSet ()
     {
         while (!feof(F))
         {
-            fgets (IPaddr, sizeof (IPaddr), F);
+            char *Ret = fgets (IPaddr, sizeof (IPaddr), F);
+            if (Ret == NULL)
+            {
+                break;
+            }
 
             UserIp.insert (ntohl(inet_addr(IPaddr)));
         }

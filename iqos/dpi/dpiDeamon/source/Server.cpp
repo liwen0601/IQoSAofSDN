@@ -30,7 +30,7 @@ VOID TCPserver::Init (DWORD Port)
 
 void *ProxyThread (void* Arg)
 {
-    char Message[1500];
+    char Message[PACKET_SIZE];
     
     Proxy *P = (Proxy *)Arg;
     TCPserver *Srver = P->m_Server;
@@ -44,10 +44,10 @@ void *ProxyThread (void* Arg)
     while (1)
     { 
         long RecvBytes = recv(Socket, Message, sizeof(Message), 0);
-        if (RecvBytes == 0)
+        if (RecvBytes < 0)
         {
             DebugLog ("Receive RecvBytes == 0\r\n");
-            continue;
+            break;
         }
 
         IpPacket *Ip = new IpPacket ((BYTE*)Message, RecvBytes, UserIpSet);

@@ -29,7 +29,12 @@ private:
             CfId = 0;
             memset (CfName, 0, sizeof(CfName));
             
-            fscanf (F, "%s %u", CfName, &CfId);
+            int Ret = fscanf (F, "%s %u", CfName, &CfId);
+            if (Ret <= 0)
+            {
+                break;
+            }
+            
             if (CfName[0] != 0 && CfId >= CF_ID_BEGIN)
             {
                 m_Id2Cf[CfId] = string (CfName);
@@ -121,7 +126,12 @@ class IpTable:public Cmd
             while (!feof(F))
             {
                 memset (IPaddr, 0, sizeof(IPaddr));
-                fgets (IPaddr, sizeof (IPaddr), F);
+                char *Ret = fgets (IPaddr, sizeof (IPaddr), F);
+                if (Ret == NULL)
+                {
+                    break;
+                }
+                
                 if (strlen (IPaddr) < 4)
                 {
                     continue;
