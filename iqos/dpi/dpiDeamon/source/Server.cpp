@@ -46,7 +46,7 @@ void *ProxyThread (void* Arg)
         long RecvBytes = recv(Socket, Message, sizeof(Message), 0);
         if (RecvBytes < 0)
         {
-            DebugLog ("Receive RecvBytes == 0\r\n");
+            DebugLog ("Receive error occur, exit current thread...\r\n");
             break;
         }
 
@@ -69,7 +69,12 @@ void *ProxyThread (void* Arg)
         }
         
         DebugLog ("classify flow as: %d \r\n", CfId);
-        send(Socket, &CfId, sizeof(CfId) , 0);
+        long SendBytes = send(Socket, &CfId, sizeof(CfId) , MSG_NOSIGNAL);
+        if (SendBytes <= 0)
+        {
+            DebugLog ("Send error occur, exit current thread...\r\n");
+            break;
+        }
     }
 
     close (Socket);
