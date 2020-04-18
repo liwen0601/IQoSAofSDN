@@ -10,6 +10,8 @@
 #include "Capture.h"
 
 set<DWORD> IPCapture::m_UserIpSet;
+bool g_PringSwitch = false;
+
 
 #define FILENAME "capture.pcap"
 

@@ -43,7 +43,7 @@ void *ProxyThread (void* Arg)
      
     while (1)
     { 
-        long RecvBytes = recv(Socket, Message, sizeof(Message), 0);
+        long RecvBytes = recv(Socket, Message, sizeof(Message), MSG_NOSIGNAL);
         if (RecvBytes < 0)
         {
             DebugLog ("Receive error occur, exit current thread...\r\n");
@@ -51,7 +51,11 @@ void *ProxyThread (void* Arg)
         }
 
         IpPacket *Ip = new IpPacket ((BYTE*)Message, RecvBytes, UserIpSet);
-        assert (Ip != NULL);
+        if (Ip == NULL)
+        {
+            DebugLog ("Allot a packet fail...\r\n");
+            continue;
+        }
 
         DWORD CfId = 0;
         if (Ip->m_SrcIp != 0)
@@ -61,6 +65,10 @@ void *ProxyThread (void* Arg)
             {
                 DebugLog ("Push packet: %p \r\n", Ip);
                 PktSet->Push (Ip);
+            }
+            else
+            {
+                delete Ip;
             }
         }
         else

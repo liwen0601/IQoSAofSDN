@@ -70,8 +70,8 @@ public:
     {
         DWORD Id = 0;
         
-        printf ("%-4s %-16s %-16s %-10s %-10s %-6s %-6s %-16s\r\n",
-                "ID", "Source", "Destination", "SrcPort", "DstPort", "Proto", "CF-Id", "CF-Name");
+        printf ("%-4s %-16s %-16s %-10s %-10s %-6s %-8s %-6s %-16s\r\n",
+                "ID", "Source", "Destination", "SrcPort", "DstPort", "Proto", "Packets", "CF-Id", "CF-Name");
         
         for (auto it = CfEngine->begin (); it != CfEngine->end(); it++)
         {
@@ -80,12 +80,13 @@ public:
             for (auto fit = U->begin (); fit != U->end (); fit++)
             {
                 Flow *F = (Flow *)(&(*fit));
-                printf ("%-4u %-16s %-16s %-10u %-10u %-6u %-6u %-16s\r\n",
+                printf ("%-4u %-16s %-16s %-10u %-10u %-6u %-8u %-6u %-16s\r\n",
                         Id,
                         IP(F->m_SrcIp).c_str(),
                         IP(F->m_DstIp).c_str(),
                         F->m_SrcPort, F->m_DstPort,
-                        F->m_ProtoType, F->GetCfId (), GetCfName(F->GetCfId ()));
+                        F->m_ProtoType, F->m_PacketNum,  
+                        F->GetCfId (), GetCfName(F->GetCfId ()));
                 Id++;
             }
         }
@@ -147,6 +148,28 @@ class IpTable:public Cmd
     }
 };
 
+class PrintSwitch:public Cmd
+{
+public:
+    
+    VOID Execute (ClassifyEngine *CfEngine)
+    {
+        g_PringSwitch = !g_PringSwitch;
+    }
+};
+
+class QueueSize:public Cmd
+{
+public:
+    
+    VOID Execute (ClassifyEngine *CfEngine)
+    {
+        printf ("Queue Size: %u \r\n", CfEngine->QueueSize ());
+    }
+};
+
+
+
 class Help:public Cmd
 {
 public:
@@ -166,6 +189,41 @@ public:
 };
 
 
+class MemUse:public Cmd
+{
+    DWORD GetPhyMemUse ()
+    {
+            pid_t pid = getpid();
+    
+            std::string FileName = "/proc/" + std::to_string(pid) + "/status";
+            FILE *F = fopen (FileName.c_str(), "r");
+            assert (F != NULL);
+    
+            char Buf[256] = {0};
+            while (!feof(F))
+            {
+                assert (fgets (Buf, sizeof(Buf), F) != NULL);
+                if (strstr(Buf, "VmRSS"))
+                {
+                    break;
+                }
+            }
+            fclose(F);
+    
+            DWORD MemSize = 0;
+            char ItemName[128];
+            sscanf (Buf, "%s %u", ItemName, &MemSize);
+    
+            return MemSize;
+    }
+    
+    VOID Execute (ClassifyEngine *CfEngine)
+    {
+        printf ("Memory Usage: %u (Kb)\r\n", GetPhyMemUse ());
+    }
+};
+
+
 class Exit:public Cmd
 {
     VOID Execute (ClassifyEngine *CfEngine)
@@ -181,6 +239,9 @@ VOID CmdShell::Init ()
     m_CmdMap["user"] = new UserPrint();
     m_CmdMap["exit"] = new Exit();
     m_CmdMap["iptable"] = new IpTable();
+    m_CmdMap["ps"] = new PrintSwitch();
+    m_CmdMap["queue"] = new QueueSize();
+    m_CmdMap["mem"] = new MemUse();
     m_CmdMap["?"] = new Help(this);
     
 	return;

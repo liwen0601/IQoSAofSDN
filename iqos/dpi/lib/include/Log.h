@@ -3,15 +3,10 @@
 #define _LOG_H_
 #include <BasicType.h>
 
-#ifdef _DEBUG_
+extern bool g_PringSwitch;
 
-#define DebugLog(format, ...) printf(format, ##__VA_ARGS__)
+#define DebugLog(format, ...) if (g_PringSwitch) printf(format, ##__VA_ARGS__)
 
-#else
-
-#define DebugLog(format, ...) 
-
-#endif
 
 
 #endif 

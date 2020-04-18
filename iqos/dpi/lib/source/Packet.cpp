@@ -68,7 +68,6 @@ DWORD IpPacket::Ipv4Parse ()
                 m_ProtoType = LV4_TCP;
                 m_PayloadLen = m_PktLen-(IPHDR_LEN+TcpHdrLen);
                 m_Payload    = (BYTE*)(THdr+1);
-                DebugLog ("m_PktLen = %u, m_PayloadLen = %u, TcpHdrLen = %u\r\n",m_PktLen, m_PayloadLen, TcpHdrLen);
                 
                 if (IsUserIp (Ipv4Header->sourceIP))
                 {
@@ -137,7 +136,8 @@ DWORD IpPacket::Ipv4Parse ()
     		}
     	}
 
-        DebugLog ("Pro: %d Src: %u-%u, Dst: %u-%u\r\n", m_ProtoType, m_SrcIp, m_SrcPort, m_DstIp, m_DstPort);
+        DebugLog ("Pro: %d Src: %u-%u, Dst: %u-%u, Pakcet-Len: %u, Payload-Len: %u\r\n",\
+                  m_ProtoType, m_SrcIp, m_SrcPort, m_DstIp, m_DstPort, m_PktLen, m_PayloadLen);
 		return M_SUCCESS;
 
 	}

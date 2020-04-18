@@ -36,6 +36,8 @@ public:
     WORD  m_DstPort;
     DWORD m_ProtoType;
 
+    DWORD m_PacketNum;
+
 private:
     T_Cf2Ctext m_Cf2Text;
     DWORD m_CfId;
@@ -50,6 +52,7 @@ public:
         m_ProtoType = ProtoType;
 
         m_CfId = 0;
+        m_PacketNum = 0;
     }
 
     ~Flow ()
@@ -85,6 +88,11 @@ public:
     inline VOID SetCfId (DWORD Cfid)
     {
         m_CfId = Cfid;
+    }
+
+    inline VOID ClearCfCtx ()
+    {
+        m_Cf2Text.clear();
     }
 
     typedef struct 
@@ -162,8 +170,12 @@ public:
         }
         else
         {
+            DebugLog ("Add a new flow:%u %u-%u %u-%u\r\n", \
+                      F.m_ProtoType, F.m_SrcIp, F.m_SrcPort, F.m_DstIp, F.m_DstPort);
             Fctx = AddFlow (F);
         }
+
+        Fctx->m_PacketNum++;
    
         pthread_mutex_unlock(&m_Mutex);
 
@@ -235,6 +247,7 @@ private:
         }
         else
         {
+            DebugLog ("Add a new user: %u\r\n", U.m_Ipaddr);
             Utx = AddUser (U);
         }
         pthread_mutex_unlock(&m_Mutex);
@@ -288,6 +301,11 @@ public:
 
     DWORD Query (IpPacket *Pkt);
     VOID Analysis ();
+
+    inline DWORD QueueSize ()
+    {
+        return m_PacketSet->Size ();
+    }
 
     inline T_UsetSet::iterator begin ()
     {

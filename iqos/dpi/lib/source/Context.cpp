@@ -7,6 +7,8 @@
 ************************************************************/
 #include "Context.h"
 
+bool g_PringSwitch = false;
+
 DWORD ClassifyEngine::Query (IpPacket *Pkt)
 {
     Flow *Fctxt = QueryFlow (Pkt);
@@ -49,6 +51,7 @@ DWORD ClassifyEngine::Classify (IpPacket *Pkt)
         if (IsFin)
         {
             Fctxt->SetCfId (Cf->GetId());
+            Fctxt->ClearCfCtx ();
             return Cf->GetId();
         }
     }

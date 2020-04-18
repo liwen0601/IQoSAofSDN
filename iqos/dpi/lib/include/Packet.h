@@ -159,6 +159,10 @@ public:
         m_UserIpSet = UserIpSet;
         Ipv4Parse();
     }
+
+    ~IpPacket ()
+    {
+    }
 };
 
 
