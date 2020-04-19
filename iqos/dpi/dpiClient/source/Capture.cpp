@@ -5,13 +5,9 @@
  * History:
    <1> 4/02/2019 , create
 ************************************************************/
-
-#include <Log.h>
 #include "Capture.h"
 
 set<DWORD> IPCapture::m_UserIpSet;
-bool g_PringSwitch = false;
-
 
 #define FILENAME "capture.pcap"
 
@@ -28,7 +24,7 @@ BOOL Capture::IsDeviceOnline ()
 
     while (DeviceList != NULL)
     {
-        DebugLog ("Get online device: %s", DeviceList->name);
+        printf ("Get online device: %s\r\n", DeviceList->name);
         if (m_Device.compare (DeviceList->name) == 0)
         {
             return M_TRUE;
@@ -54,13 +50,13 @@ pcap_t* Capture::InitPcapHandle ()
     m_CapLen = pcap_snapshot(CapHandle);
     if(m_CapLen != CAP_LEN) 
     {
-        DebugLog ("snaplen changes from %u to %u", CAP_LEN, m_CapLen);
+        printf ("snaplen changes from %u to %u\r\n", CAP_LEN, m_CapLen);
     }
     
     if(pcap_lookupnet(m_Device.c_str(), &LocalNet, &NetMask, Error) < 0)
     {
         LocalNet = NetMask = 0;
-        DebugLog("%s\n", Error);
+        printf("%s\n", Error);
     }
     
     assert (pcap_compile(CapHandle,  &FCode, "", 1, NetMask) >= 0);    
@@ -76,7 +72,7 @@ VOID Capture::CapturePacket(pcap_handler Analysis)
     
     if (!IsDeviceOnline ())
     {
-        DebugLog ("Device %s is not online.", m_Device.c_str());
+        printf ("Device %s is not online.\r\n", m_Device.c_str());
         return;
     }
     
@@ -86,7 +82,7 @@ VOID Capture::CapturePacket(pcap_handler Analysis)
     
     if(pcap_loop(m_CapHandle, -1, Analysis, (u_char*)Dumper) < 0)
     {
-        DebugLog("Error in pcap_loop");
+        printf("Error in pcap_loop\r\n");
         pcap_close(m_CapHandle);
     }
     

@@ -11,7 +11,7 @@ OBJ_PATH = obj
 CUR_INCLUDES = -I$(HEADER_DIR) -I$(LIB_PATH)/include
 CUR_CFLAGS = $(CFLAGS)
 
-CUR_LD_CFLAGES = $(LD_CFLAGES) $(LIB_PATH)/libdpi.so -lpcap 
+CUR_LD_CFLAGES = $(LD_CFLAGES) $(LIB_PATH)/libdpi.so 
 
 SOURCE_FILES = $(wildcard $(SOURCE_DIR)/*.cpp)
 OBJ_FILES = $(addprefix $(OBJ_PATH)/, $(addsuffix .o,$(notdir $(basename $(SOURCE_FILES)))))
@@ -23,7 +23,7 @@ TARGET = dpiDeamon
 all: $(TARGET)
 
 $(TARGET): $(OBJ_FILES)
-	$(LD) $(CUR_LD_CFLAGES) -o $@ $^ 
+	$(LD) -o $@ $^ $(CUR_LD_CFLAGES)
 	
 $(OBJ_PATH)/%.o: $(SOURCE_DIR)/%.cpp
 	@if [ ! -d $(OBJ_PATH) ];then mkdir $(OBJ_PATH); fi

@@ -23,7 +23,7 @@ TARGET = dpiClient
 all: $(TARGET)
 
 $(TARGET): $(OBJ_FILES)
-	$(LD) $(CUR_LD_CFLAGES) -o $@ $^ 
+	$(LD) -o $@ $^ $(CUR_LD_CFLAGES)
 	
 $(OBJ_PATH)/%.o: $(SOURCE_DIR)/%.cpp
 	@if [ ! -d $(OBJ_PATH) ];then mkdir $(OBJ_PATH); fi

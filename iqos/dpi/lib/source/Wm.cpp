@@ -129,7 +129,7 @@ T_Result* WmMatch::Search(const BYTE* Text, const DWORD Length)
 }
 
 
-DWORD WmTest ()
+VOID WmTest ()
 {
     T_Pid2Pattern Patterns;
     Patterns[1] = "www.liwen.cn";

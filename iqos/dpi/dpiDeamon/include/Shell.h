@@ -32,6 +32,10 @@ public:
     {
         m_Cs = Cs;
     }
+
+    virtual ~Cmd ()
+    {
+    }
 public:
     inline string IP (DWORD addr)
     {
@@ -72,12 +76,12 @@ public:
 
     T_CmdMap::iterator begin ()
     {
-        m_CmdMap.begin();
+        return m_CmdMap.begin();
     }
 
     T_CmdMap::iterator end ()
     {
-        m_CmdMap.end();
+        return m_CmdMap.end();
     }
 
     VOID ExeCmd (string Cmd);

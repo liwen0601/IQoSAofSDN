@@ -3,14 +3,14 @@
 # Date  : 3/25/2020
 # Description: makefile for entry of module of project
 ##############################################################################
-export CC = clang
-export LD = clang
+export CC = gcc 
+export LD = gcc
 
 export ROOT_PATH = $(PWD)
 export LIB_PATH = $(ROOT_PATH)/lib
 
-export CFLAGS     = -std=c++11 -g -O3
-export LD_CFLAGES = -lstdc++ -lpthread 
+export CFLAGS     = -std=c++11 -g
+export LD_CFLAGES = -pthread -lpthread -lstdc++
 
 SUBDIRS = lib dpiClient dpiDeamon
 
