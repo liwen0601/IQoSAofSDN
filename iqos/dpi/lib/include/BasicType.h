@@ -69,6 +69,9 @@ typedef unsigned int     BOOL;
 
 #define PACKET_SIZE         (1500)
 
+#define DPI_NUM             (5)
+
+
 
 
 #endif

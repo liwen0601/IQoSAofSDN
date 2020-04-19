@@ -60,14 +60,17 @@ void *ProxyThread (void* Arg)
         DWORD CfId = 0;
         if (Ip->m_SrcIp != 0)
         {
-            CfId = CfEngine->Query (Ip);
-            if (CfId == 0)
+            Flow *Fctx = CfEngine->QueryFlow (Ip);
+            CfId = Fctx->GetCfId ();
+            
+            if (Fctx->m_SduNum <= DPI_NUM && CfId == 0)
             {
                 DebugLog ("Push packet: %p \r\n", Ip);
                 PktSet->Push (Ip);
             }
             else
             {
+                CfEngine->UpdateStatistic (Ip);
                 delete Ip;
             }
         }

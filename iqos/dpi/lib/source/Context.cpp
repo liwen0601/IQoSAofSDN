@@ -9,21 +9,19 @@
 
 bool g_PringSwitch = false;
 
-DWORD ClassifyEngine::Query (IpPacket *Pkt)
-{
-    Flow *Fctxt = QueryFlow (Pkt);
-    assert (Fctxt != NULL);
-
-    return Fctxt->GetCfId ();
-}
-
 
 DWORD ClassifyEngine::Classify (IpPacket *Pkt)
 {
     DWORD CfId;
+
+    m_PacketNum++;
+    m_Traffic += Pkt->m_PktLen;
     
     Flow *Fctxt = QueryFlow (Pkt);
     assert (Fctxt != NULL);
+
+    Fctxt->m_PacketNum++;
+    Fctxt->m_SduNum += (Pkt->m_Payload > 0);
 
     CfId = Fctxt->GetCfId ();
     if (CfId != 0)

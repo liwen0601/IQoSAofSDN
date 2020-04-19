@@ -37,6 +37,7 @@ public:
     DWORD m_ProtoType;
 
     DWORD m_PacketNum;
+    DWORD m_SduNum;
 
 private:
     T_Cf2Ctext m_Cf2Text;
@@ -53,6 +54,7 @@ public:
 
         m_CfId = 0;
         m_PacketNum = 0;
+        m_SduNum = 0;
     }
 
     ~Flow ()
@@ -174,8 +176,6 @@ public:
                       F.m_ProtoType, F.m_SrcIp, F.m_SrcPort, F.m_DstIp, F.m_DstPort);
             Fctx = AddFlow (F);
         }
-
-        Fctx->m_PacketNum++;
    
         pthread_mutex_unlock(&m_Mutex);
 
@@ -223,6 +223,9 @@ private:
 
     pthread_mutex_t m_Mutex;
 
+    ULONG m_PacketNum;
+    ULONG m_Traffic;
+
 private:
     inline User *AddUser(User U)
     {
@@ -260,23 +263,6 @@ private:
         return m_UserSet.size();
     }
 
-    inline Flow* QueryFlow (IpPacket *Pkt)
-    {
-        DWORD CfId;
-        
-        User *Uctxt = GetUser (User (Pkt->m_SrcIp));
-        assert (Uctxt != NULL);
-
-        Flow *Fctxt = Uctxt->GetFlow (Flow(Pkt->m_SrcIp, Pkt->m_DstIp, 
-                                      Pkt->m_SrcPort, Pkt->m_DstPort, 
-                                      Pkt->m_ProtoType)
-                                     );
-        assert (Fctxt != NULL);
-
-        return Fctxt;
-    }
-
-
     DWORD Classify (IpPacket *Pkt);
 
 public:
@@ -299,7 +285,6 @@ public:
         
     }
 
-    DWORD Query (IpPacket *Pkt);
     VOID Analysis ();
 
     inline DWORD QueueSize ()
@@ -315,6 +300,38 @@ public:
     inline T_UsetSet::iterator end ()
     {
         return m_UserSet.end();
+    }
+
+    inline Flow* QueryFlow (IpPacket *Pkt)
+    {
+        DWORD CfId;
+        
+        User *Uctxt = GetUser (User (Pkt->m_SrcIp));
+        assert (Uctxt != NULL);
+
+        Flow *Fctxt = Uctxt->GetFlow (Flow(Pkt->m_SrcIp, Pkt->m_DstIp, 
+                                      Pkt->m_SrcPort, Pkt->m_DstPort, 
+                                      Pkt->m_ProtoType)
+                                     );
+        assert (Fctxt != NULL);
+
+        return Fctxt;
+    }
+
+    inline ULONG GetPacketNum ()
+    {
+        return m_PacketNum;
+    }
+
+    inline ULONG GetTraffic ()
+    {
+        return m_Traffic;
+    }
+
+    inline VOID UpdateStatistic (IpPacket *Pkt)
+    {
+        m_Traffic += Pkt->m_PktLen;
+        m_PacketNum++;
     }
     
 };

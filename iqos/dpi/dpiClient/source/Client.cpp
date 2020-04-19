@@ -35,14 +35,14 @@ VOID TCPclient::SendPacket (BYTE* Packet, DWORD Length)
     long Bytes = send(m_Socket, Packet, Length, 0);
     if (Bytes > 0)
     {
-        printf ("Send packet, Length = %u\r\n", Length);
+        //printf ("Send packet, Length = %u\r\n", Length);
     }
 
     DWORD CfId = 0;
     recv (m_Socket, &CfId, sizeof(CfId),0);
     if (CfId != 0)
     {
-        printf ("Flow been set as %u\r\n", CfId);
+        //printf ("Flow been set as %u\r\n", CfId);
     }
 
     return;

@@ -189,6 +189,30 @@ public:
 };
 
 
+class Perf:public Cmd
+{
+public:
+    VOID Execute (ClassifyEngine *CfEngine)
+    {
+        DWORD Index = 0;
+        while (Index < 5)
+        {
+            ULONG PktNum  = CfEngine->GetPacketNum ();
+            ULONG Traffic = CfEngine->GetTraffic ();
+
+            sleep (5);
+
+            printf ("[%u]KPps: %lu, Mbps: %lu \r\n", Index, 
+                   (CfEngine->GetPacketNum () - PktNum)/1000,
+                   (CfEngine->GetTraffic () - Traffic)*8/1000/1000);
+
+            Index++;
+        }  
+    }
+};
+
+
+
 class MemUse:public Cmd
 {
     DWORD GetPhyMemUse ()
@@ -242,6 +266,7 @@ VOID CmdShell::Init ()
     m_CmdMap["ps"] = new PrintSwitch();
     m_CmdMap["queue"] = new QueueSize();
     m_CmdMap["mem"] = new MemUse();
+    m_CmdMap["perf"] = new Perf();
     m_CmdMap["?"] = new Help(this);
     
 	return;

@@ -21,13 +21,19 @@ enum ETHTYPE
 
 class Packet
 {
-protected:
+public:
+
     DWORD m_PktLen;
     BYTE* m_PktData;
     
-public:
+
     Packet (BYTE* PktData, DWORD PktLen)
     {
+        if (PktLen >= PACKET_SIZE)
+        {
+            PktLen = PACKET_SIZE;
+        }
+        
         m_PktData = new BYTE[PktLen+4];
         assert (m_PktData != NULL);
         

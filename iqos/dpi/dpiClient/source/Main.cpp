@@ -10,6 +10,12 @@
 
 
 static TCPclient* Client = NULL;
+static DWORD Perf = 0;
+#define MAX_PKT_NUM  (256)
+#define PKT_LEN      (1500)
+BYTE   PktData[MAX_PKT_NUM][PKT_LEN];
+DWORD  PktLen[MAX_PKT_NUM];
+
 
 VOID Help ()
 {
@@ -45,6 +51,85 @@ static VOID Analysis(BYTE *user,  struct pcap_pkthdr *Hdr, BYTE *PktData)
 }
 
 
+static DWORD PktNum = 0;
+static VOID ReadPcap(BYTE *temp1, const struct pcap_pkthdr *header, const u_char *pkt_data)
+{
+    if (PktNum < MAX_PKT_NUM)
+    {
+        PktLen[PktNum] = (header->caplen > PKT_LEN)?(PKT_LEN):(header->caplen); 
+    	memcpy(PktData[PktNum], (BYTE*)pkt_data+14, PktLen[PktNum]);	
+    }
+
+    PktNum++;
+	
+	return;
+}
+
+bool Prepare(CHAR* PcapFile)
+{
+	pcap_t *fp;
+	char errbuf[PCAP_ERRBUF_SIZE];
+
+    if (PcapFile == NULL)
+    {
+        return false;
+    }
+	
+	fp = pcap_open_offline(PcapFile, errbuf);
+	if (NULL == fp)
+	{
+		printf("pcap_open_offline fail, pbPcapFile=%s\r\n", PcapFile);
+		return false;
+	}
+	
+	pcap_loop(fp, 0, ReadPcap, NULL);	
+	pcap_close(fp);
+
+	printf("===============================\r\n");
+	printf("get packet num is %u \r\n", PktNum);
+	printf("===============================\r\n");
+
+	return true;
+}
+
+
+VOID PerfTest()
+{
+    DWORD SrcIp = 3657555466;
+    DWORD NewSrcIp = SrcIp+1;
+    
+    while (1)
+    {
+        DWORD Index = 0;
+        
+        while (Index < PktNum)
+        {
+            Ipv4Hdr* Ipv4Header = (Ipv4Hdr*)PktData[Index];
+
+            if (Ipv4Header->sourceIP == SrcIp)
+            {
+                Ipv4Header->destIP = NewSrcIp;
+            }
+            else if (Ipv4Header->destIP == SrcIp)
+            {
+                Ipv4Header->sourceIP = NewSrcIp;
+            }
+            else
+            {
+                printf ("src:%u, dst:%u \r\n", Ipv4Header->sourceIP, Ipv4Header->destIP);
+            }
+            
+            
+            Client->SendPacket ((BYTE*)Ipv4Header, PktLen[Index]);
+
+            Index++;
+        }
+
+        NewSrcIp++;
+    }
+}
+
+
 int main(int argc, char *argv[])
 {
     char ch;
@@ -52,8 +137,10 @@ int main(int argc, char *argv[])
 
     string ServerIp = "127.0.0.1";
     DWORD  ServerPort = 9163;
+
+    CHAR* PcapFile = NULL;
     
-    while((ch = getopt(argc, argv, "d:s:p:")) != -1)
+    while((ch = getopt(argc, argv, "d:s:p:xf:")) != -1)
     {
         switch(ch)
         {
@@ -72,6 +159,16 @@ int main(int argc, char *argv[])
                 ServerPort = atoi(optarg);
                 break;
             }
+            case 'x':
+            {
+                Perf = 1;
+                break;
+            }
+            case 'f':
+            {
+                PcapFile = optarg;
+                break;
+            }
             default:
             {
                 Help ();
@@ -80,17 +177,32 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (Device == "")
+    if (Perf)
     {
-        Help();
-        return 0;
-    }
-
-    Client = new TCPclient (ServerIp, ServerPort);
-    assert (Client != NULL);
+        if (!Prepare (PcapFile))
+        {
+            return 0;
+        }
         
-    Capture Cap(Device);
-    Cap.CapturePacket ((pcap_handler)Analysis);
+        Client = new TCPclient (ServerIp, ServerPort);
+        assert (Client != NULL);
+
+        PerfTest();
+    }
+    else
+    {
+        if (Device == "")
+        {
+            Help();
+            return 0;
+        }
+
+        Client = new TCPclient (ServerIp, ServerPort);
+        assert (Client != NULL);
+            
+        Capture Cap(Device);
+        Cap.CapturePacket ((pcap_handler)Analysis);
+    }
 	
 	return 0;
 }
