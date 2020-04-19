@@ -7,21 +7,23 @@ To start the network topo and controller correctly, please configure the environ
   3.1 Get source code: git clone git://github.com/osrg/ryu.git
   3.2 Install relevant packages: pip install -r ryu/tools/pip-requires
   3.3 Install: python ryu/setup.py install
-4. Then start the Mininet with network topo and controller: 
-    sudo ./start.sh TCP/UDP DST_PORT
-    For example, you can type sudo ./start.sh TCP 5001 to guarantee iperf TCP bandwidth testing flow
-5. When first start Mininet, set openvswitch manager: 
-    s1 ovs-vsctl set-manager "ptcp:6640"
+
+4. Copy "config_L4.ini" or "config_L5.ini" to "config.ini". You can modify the content based on the format. (Do not copy the comments)
+5. Then start the Mininet with network topo and controller: 
+   sudo ./start.sh
+6. If this is the first time you start Mininet, set openvswitch manager: 
+   s1 ovs-vsctl set-manager "ptcp:6640"
    Then restart Mininet
-6. TCP bandwidth testing
-   xterm h1 h2
+6. xterm h1 h2
+   TCP bandwidth testing (default server port 5001)
    h1: iperf -s
    h2: iperf -c 10.0.0.1 -b 100G
-   UDP bandwidth testing
+   UDP bandwidth testing (default server port 5001)
    h1: iperf -s -u
    h2: iperf -c 10.0.0.1 -b 100G -u
-   We can see bandwidth of selected application is limited at 500Mbps, while the other is limited at 5Mbps
-
+   
+   You can also add -p port_num to specify server port to test more
+   
 7. Logs of controller can be found in controller.log
 
 

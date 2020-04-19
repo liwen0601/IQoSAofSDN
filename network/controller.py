@@ -24,15 +24,16 @@ from ryu.lib.packet import ether_types
 from ryu.lib.packet import ipv4
 from ryu.lib.ovs import bridge
 from ryu.lib.ovs import vsctl
+import time
+import os
+import threading
 
-TCP=6
-UDP=17
+#TCP=6
+#UDP=17
 
-ip_protocol=TCP
+#ip_protocol=TCP
 
-
-
-dst_port=5001
+#dst_port=5001
 
 
 
@@ -40,6 +41,11 @@ dst_port=5001
 
 class SimpleSwitch13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
+    lastModify = 0.0
+    mode = 1 #mode: 1-Layer4; 2-Layer5; 3-Content
+    L4 = [] #L4: 1-TCP; 2-UDP
+    L5 = [] #L5: guaranteed L4 and port
+    ev = 0
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
@@ -48,12 +54,33 @@ class SimpleSwitch13(app_manager.RyuApp):
         self.ovsdb_addr = "tcp:127.0.0.1:6640"
         #self.ovs_bridge = None
         self.ovs_vsctl = vsctl.VSCtl(self.ovsdb_addr)
+        self.lastModify=os.path.getmtime("config.ini")
+        print("init finish")
 
-    @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
-    def switch_features_handler(self, ev):
-        datapath = ev.msg.datapath
+
+    def remove_table_flows(self, datapath, table_id, match, instructions):
+        """Create OFP flow mod message to remove flows from table."""
+        ofproto = datapath.ofproto
+        flow_mod = datapath.ofproto_parser.OFPFlowMod(datapath, 0, 0,table_id,ofproto.OFPFC_DELETE,0, 0,1,ofproto.OFPCML_NO_BUFFER,ofproto.OFPP_ANY, ofproto.OFPG_ANY, 0,match, instructions)
+        return flow_mod
+
+
+
+    def reset(self):
+        self.L4=[]
+        self.L5=[]
+
+        datapath = self.ev.msg.datapath
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
+
+
+        empty_match = parser.OFPMatch()
+        instructions = []
+        flow_mod = self.remove_table_flows(datapath, 0,empty_match, instructions)
+        self.logger.info("deleting all flow entries in table")
+        datapath.send_msg(flow_mod)
+        
         #command = vsctl.VSCtlCommand("set",("port"))
         #self.ovs_vsctl.run_command([command])
         #print(command)
@@ -66,23 +93,101 @@ class SimpleSwitch13(app_manager.RyuApp):
             return
         
         vif_ports = self.ovs_bridge.get_port_name_list()
+        
+        f = open("config.ini","r")
 
-        queue_config=[]
-        config={}
-        config['max-rate']="500000000"
-        config['min-rate']="0"
-        queue_config.append(config)
-        config={}
-        config['max-rate']="5000000"
-        config['min-rate']="0"
-        queue_config.append(config)
-        for port_name in vif_ports:
-            self.logger.info("Set QoS to port %s",port_name)
-            try:
-                self.ovs_bridge.set_qos(port_name,type='linux-htb',queues=queue_config)
-                self.logger.info("QoS success")
-            except:
-                self.logger.info("QoS fail")
+        line = f.readline()
+        self.mode = int(line)    #mode: 1-Layer4; 2-Layer5; 3-Content
+        #self.logger.info(line)
+        if self.mode == 1:
+            self.logger.info("Layer 4 mode")
+            '''
+            line = f.readline()
+            parameters = line.split(' ')
+            self.L4.append(int(parameters[0]))
+            maxRate = int(parameters[1])
+            minRate = int(parameters[2])
+            
+            queue_config=[]
+            config={}
+            config['max-rate']=str(maxRate)
+            config['min-rate']=str(minRate)
+            queue_config.append(config)
+
+            line = f.readline()
+            parameters = line.split(' ')
+            '''
+            queue_config=[]
+            while True:
+                line = f.readline()
+                parameters = line.split(' ')
+                if len(parameters) != 3:
+                    #print(parameters)
+                    break
+                self.L4.append(int(parameters[0]))
+                maxRate = int(parameters[1])
+                minRate = int(parameters[2])
+
+                config={}
+                config['max-rate']=str(maxRate)
+                config['min-rate']=str(minRate)
+                queue_config.append(config)
+
+            maxRate = int(parameters[0])
+            minRate = int(parameters[1])
+
+
+            config={}
+            config['max-rate']=str(maxRate)
+            config['min-rate']=str(minRate)
+            queue_config.append(config)
+
+            for port_name in vif_ports:
+                self.logger.info("Set QoS to port %s",port_name)
+                try:
+                    self.ovs_bridge.set_qos(port_name,type='linux-htb',queues=queue_config)
+                    self.logger.info("QoS success")
+                except:
+                    self.logger.info("QoS fail")
+        
+
+
+        
+        elif self.mode == 2:
+            self.logger.info("Layer 5 mode")
+            queue_config=[]
+            while True:
+                line = f.readline()
+                parameters = line.split(' ')
+                print(parameters)
+                if len(parameters) != 4:
+                    #print(parameters)
+                    break
+                self.L5.append((int(parameters[0]),int(parameters[1])))
+                maxRate = int(parameters[2])
+                minRate = int(parameters[3])
+
+                config={}
+                config['max-rate']=str(maxRate)
+                config['min-rate']=str(minRate)
+                queue_config.append(config)
+                        
+            maxRate = int(parameters[0])
+            minRate = int(parameters[1])
+    
+            config={}
+            config['max-rate']=str(maxRate)
+            config['min-rate']=str(minRate)
+            queue_config.append(config)           
+
+
+            for port_name in vif_ports:
+                self.logger.info("Set QoS to port %s",port_name)
+                try:
+                    self.ovs_bridge.set_qos(port_name,type='linux-htb',queues=queue_config)
+                    self.logger.info("QoS success")
+                except:
+                    self.logger.info("QoS fail")
         
                
         # install table-miss flow entry
@@ -97,6 +202,15 @@ class SimpleSwitch13(app_manager.RyuApp):
                                           ofproto.OFPCML_NO_BUFFER)]
         self.add_flow(datapath, 0, match, actions)
 
+
+
+
+
+    @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
+    def switch_features_handler(self,ev):
+        self.ev=ev
+        self.reset()
+        self.lastModify = os.path.getmtime("config.ini")
         
 
     def add_flow(self, datapath, priority, match, actions, buffer_id=None):
@@ -120,6 +234,19 @@ class SimpleSwitch13(app_manager.RyuApp):
         # If you hit this you might want to increase
         # the "miss_send_length" of your switch
         #self.ovs_bridge.init()
+        self.ev=ev
+
+        f = 0
+        lm = os.path.getmtime("config.ini")
+        if lm > self.lastModify:
+            self.logger.info("found modify, reset")
+            self.lastModify = lm
+            self.reset()
+
+        
+
+
+
         if ev.msg.msg_len < ev.msg.total_len:
             self.logger.debug("packet truncated: only %s of %s bytes",
                               ev.msg.msg_len, ev.msg.total_len)
@@ -162,7 +289,10 @@ class SimpleSwitch13(app_manager.RyuApp):
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
             match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
-            actions=[parser.OFPActionSetQueue(1),parser.OFPActionOutput(out_port)]
+            if self.mode == 1:
+                actions=[parser.OFPActionSetQueue(len(self.L4)),parser.OFPActionOutput(out_port)]
+            elif self.mode == 2:
+                actions=[parser.OFPActionSetQueue(len(self.L5)),parser.OFPActionOutput(out_port)]
             # verify if we have a valid buffer_id, if yes avoid to send both
             # flow_mod & packet_out
             if msg.buffer_id != ofproto.OFP_NO_BUFFER:
@@ -170,32 +300,43 @@ class SimpleSwitch13(app_manager.RyuApp):
             else:
                 self.add_flow(datapath, 1, match, actions)
             #match = parser.OFPMatch(ip_proto="0x06",in_port=in_port, eth_dst=dst, eth_src=src)
-            if ip_protocol == 6:
-                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=ip_protocol,tcp_dst=dst_port)
-            else:
-                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=ip_protocol,udp_dst=dst_port)
-            actions=[parser.OFPActionSetQueue(0),parser.OFPActionOutput(out_port)]
+
+            if self.mode == 1:   #L4 mode
+                for i in range(len(self.L4)):
+                    if self.L4[i] == 1:    #TCP
+                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=6)
+                    elif self.L4[i] == 2:  #UDP
+                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=17)
+                    actions=[parser.OFPActionSetQueue(i),parser.OFPActionOutput(out_port)]
             # verify if we have a valid buffer_id, if yes avoid to send both
             # flow_mod & packet_out
             #print("add TCP")
-            if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                self.add_flow(datapath, 2, match, actions, msg.buffer_id)
-            else:
-                self.add_flow(datapath, 2, match, actions)
+                    if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                        self.add_flow(datapath, 2, match, actions, msg.buffer_id)
+                    else:
+                        self.add_flow(datapath, 2, match, actions)
 
-
-            if ip_protocol == 6:
-                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=ip_protocol,tcp_src=dst_port)
-            else:
-                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=ip_protocol,udp_src=dst_port)
-            actions=[parser.OFPActionSetQueue(0),parser.OFPActionOutput(out_port)]
-            # verify if we have a valid buffer_id, if yes avoid to send both
-            # flow_mod & packet_out
-            #print("add TCP")
-            if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                self.add_flow(datapath, 2, match, actions, msg.buffer_id)
-            else:
-                self.add_flow(datapath, 2, match, actions)
+            elif self.mode ==2: #L5 mode
+                for i in range(len(self.L5)):
+                    if self.L5[i][0] == 1:
+                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=6,tcp_src=self.L5[i][1]) 
+                    elif self.L5[i][0] == 2:
+                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=17,udp_src=self.L5[i][1])
+                    actions=[parser.OFPActionSetQueue(i),parser.OFPActionOutput(out_port)]
+                    if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                        self.add_flow(datapath, 2, match, actions, msg.buffer_id)
+                    else:
+                        self.add_flow(datapath, 2, match, actions)
+                    
+                    if self.L5[i][0] == 1:
+                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=6,tcp_dst=self.L5[i][1]) 
+                    elif self.L5[i][0] == 2:
+                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=17,udp_dst=self.L5[i][1])
+                    actions=[parser.OFPActionSetQueue(i),parser.OFPActionOutput(out_port)]
+                    if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                        self.add_flow(datapath, 2, match, actions, msg.buffer_id)
+                    else:
+                        self.add_flow(datapath, 2, match, actions)
 
 
         data = None
@@ -205,3 +346,5 @@ class SimpleSwitch13(app_manager.RyuApp):
         out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
                                   in_port=in_port, actions=actions, data=data)
         datapath.send_msg(out)
+
+
