@@ -22,7 +22,8 @@ To start the network topo and controller correctly, please configure the environ
    h1: iperf -s -u
    h2: iperf -c 10.0.0.1 -b 100G -u
    
-   You can also add -p port_num to specify server port to test more
+   You can also add -p port_num to specify server port to test more cases.
+   You can modify "config.ini" at running time. The new configuration would be enabled once you save the file.
    
 7. Logs of controller can be found in controller.log
 
