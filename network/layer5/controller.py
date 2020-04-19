@@ -25,6 +25,19 @@ from ryu.lib.packet import ipv4
 from ryu.lib.ovs import bridge
 from ryu.lib.ovs import vsctl
 
+TCP=6
+UDP=17
+
+ip_protocol=TCP
+
+
+
+dst_port=5001
+
+
+
+
+
 class SimpleSwitch13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
@@ -157,7 +170,10 @@ class SimpleSwitch13(app_manager.RyuApp):
             else:
                 self.add_flow(datapath, 1, match, actions)
             #match = parser.OFPMatch(ip_proto="0x06",in_port=in_port, eth_dst=dst, eth_src=src)
-            match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=6)
+            if ip_protocol == 6:
+                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=ip_protocol,tcp_dst=dst_port)
+            else:
+                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=ip_protocol,udp_dst=dst_port)
             actions=[parser.OFPActionSetQueue(0),parser.OFPActionOutput(out_port)]
             # verify if we have a valid buffer_id, if yes avoid to send both
             # flow_mod & packet_out
@@ -166,6 +182,21 @@ class SimpleSwitch13(app_manager.RyuApp):
                 self.add_flow(datapath, 2, match, actions, msg.buffer_id)
             else:
                 self.add_flow(datapath, 2, match, actions)
+
+
+            if ip_protocol == 6:
+                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=ip_protocol,tcp_src=dst_port)
+            else:
+                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=ip_protocol,udp_src=dst_port)
+            actions=[parser.OFPActionSetQueue(0),parser.OFPActionOutput(out_port)]
+            # verify if we have a valid buffer_id, if yes avoid to send both
+            # flow_mod & packet_out
+            #print("add TCP")
+            if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                self.add_flow(datapath, 2, match, actions, msg.buffer_id)
+            else:
+                self.add_flow(datapath, 2, match, actions)
+
 
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:

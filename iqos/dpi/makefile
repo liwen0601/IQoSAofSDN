@@ -3,8 +3,8 @@
 # Date  : 3/25/2020
 # Description: makefile for entry of module of project
 ##############################################################################
-export CC = gcc 
-export LD = gcc
+export CC = clang
+export LD = clang
 
 export ROOT_PATH = $(PWD)
 export LIB_PATH = $(ROOT_PATH)/lib

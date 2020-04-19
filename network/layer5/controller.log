@@ -1,0 +1,69 @@
+loading app controller.py
+loading app ryu.controller.ofp_handler
+instantiating app controller.py of SimpleSwitch13
+instantiating app ryu.controller.ofp_handler of OFPHandler
+OVSBridge success
+Set QoS to port s1-eth1
+QoS success
+Set QoS to port s1-eth2
+QoS success
+Add a flow
+OVSBridge success
+Add a flow
+packet in 0000000000000001 f6:3d:53:24:35:d6 33:33:00:00:00:02 1 []
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 33:33:00:00:00:02 2 []
+packet in 0000000000000001 f6:3d:53:24:35:d6 33:33:00:00:00:02 1 []
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 33:33:00:00:00:02 2 []
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 f6:3d:53:24:35:d6 7e:e8:4f:8a:1b:34 1 []
+Add a flow
+Add a flow
+Add a flow
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 f6:3d:53:24:35:d6 2 [ipv4(csum=43186,dst='10.0.0.1',flags=2,header_length=5,identification=32263,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=60,ttl=64,version=4)]
+Add a flow
+Add a flow
+Add a flow
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 f6:3d:53:24:35:d6 2 [ipv4(csum=43193,dst='10.0.0.1',flags=2,header_length=5,identification=32264,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=52,ttl=64,version=4)]
+Add a flow
+Add a flow
+Add a flow
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 f6:3d:53:24:35:d6 2 [ipv4(csum=41744,dst='10.0.0.1',flags=2,header_length=5,identification=32265,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+Add a flow
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 f6:3d:53:24:35:d6 2 [ipv4(csum=41743,dst='10.0.0.1',flags=2,header_length=5,identification=32266,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+Add a flow
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 f6:3d:53:24:35:d6 2 [ipv4(csum=41742,dst='10.0.0.1',flags=2,header_length=5,identification=32267,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+Add a flow
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 f6:3d:53:24:35:d6 2 [ipv4(csum=41741,dst='10.0.0.1',flags=2,header_length=5,identification=32268,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+Add a flow
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 f6:3d:53:24:35:d6 2 [ipv4(csum=41740,dst='10.0.0.1',flags=2,header_length=5,identification=32269,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+Add a flow
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 f6:3d:53:24:35:d6 2 [ipv4(csum=41739,dst='10.0.0.1',flags=2,header_length=5,identification=32270,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+Add a flow
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 f6:3d:53:24:35:d6 2 [ipv4(csum=41738,dst='10.0.0.1',flags=2,header_length=5,identification=32271,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+Add a flow
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 f6:3d:53:24:35:d6 2 [ipv4(csum=41737,dst='10.0.0.1',flags=2,header_length=5,identification=32272,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+Add a flow
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 f6:3d:53:24:35:d6 2 [ipv4(csum=41736,dst='10.0.0.1',flags=2,header_length=5,identification=32273,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+Add a flow
+packet in 0000000000000001 7e:e8:4f:8a:1b:34 f6:3d:53:24:35:d6 2 [ipv4(csum=41735,dst='10.0.0.1',flags=2,header_length=5,identification=32274,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
+Add a flow
+Add a flow
+Add a flow
