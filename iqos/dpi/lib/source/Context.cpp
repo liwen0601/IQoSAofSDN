@@ -78,22 +78,20 @@ VOID ContextTest ()
 {
     User U (111);
 
-    T_FlowSet *Fs = U.GetFlowSet ();
+    Flow *F1 = U.GetFlow (111, 222, 1, 2, 6);
+    assert (U.GetFlowNum() == 1);
 
-    Flow *F1 = U.GetFlow (Flow(111, 222, 1, 2, 6));
-    assert (Fs->size() == 1);
-
-    Flow *F2 = U.GetFlow (Flow(111, 333, 1, 2, 6));
-    assert (Fs->size() == 2);
+    Flow *F2 = U.GetFlow (111, 333, 1, 2, 6);
+    assert (U.GetFlowNum() == 2);
     
-    Flow *F3 = U.GetFlow (Flow(111, 444, 1, 2, 6));
-    assert (Fs->size() == 3);
+    Flow *F3 = U.GetFlow (111, 444, 1, 2, 6);
+    assert (U.GetFlowNum() == 3);
 
-    Flow *F4 = U.GetFlow (Flow(111, 222, 1, 2, 6));
-    assert (Fs->size() == 3);
+    Flow *F4 = U.GetFlow (111, 222, 1, 2, 6);
+    assert (U.GetFlowNum() == 3);
 
-    Flow *F5 = U.GetFlow (Flow(111, 333, 1, 2, 6));
-    assert (Fs->size() == 3);
+    Flow *F5 = U.GetFlow (111, 333, 1, 2, 6);
+    assert (U.GetFlowNum() == 3);
 }
 
 

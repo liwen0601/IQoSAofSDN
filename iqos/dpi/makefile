@@ -9,7 +9,7 @@ export LD = gcc
 export ROOT_PATH = $(PWD)
 export LIB_PATH = $(ROOT_PATH)/lib
 
-export CFLAGS     = -std=c++11 -g
+export CFLAGS     = -std=c++11 -g -O3
 export LD_CFLAGES = -pthread -lpthread -lstdc++
 
 SUBDIRS = lib dpiClient dpiDeamon

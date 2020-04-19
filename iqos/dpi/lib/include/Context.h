@@ -99,33 +99,33 @@ public:
 
     typedef struct 
     {
-        bool operator()(Flow L, Flow R) 
+        bool operator()(Flow *L, Flow *R) 
         {
-            if (L.m_SrcIp != R.m_SrcIp)
+            if (L->m_SrcIp != R->m_SrcIp)
             {
-                return (L.m_SrcIp < R.m_SrcIp);
+                return (L->m_SrcIp < R->m_SrcIp);
             }
-            else if (L.m_DstIp != R.m_DstIp)
+            else if (L->m_DstIp != R->m_DstIp)
             {
-                return (L.m_DstIp < R.m_DstIp);
+                return (L->m_DstIp < R->m_DstIp);
             }
-            else if (L.m_SrcPort != R.m_SrcPort)
+            else if (L->m_SrcPort != R->m_SrcPort)
             {
-                return (L.m_SrcPort < R.m_SrcPort);
+                return (L->m_SrcPort < R->m_SrcPort);
             }
-            else if (L.m_DstPort != R.m_DstPort)
+            else if (L->m_DstPort != R->m_DstPort)
             {
-                return (L.m_DstPort < R.m_DstPort);
+                return (L->m_DstPort < R->m_DstPort);
             }
             else
             {
-                return (L.m_ProtoType < R.m_ProtoType);
+                return (L->m_ProtoType < R->m_ProtoType);
             }
         }
     } EqualFlow; 
 };
 
-typedef set<Flow, typename Flow::EqualFlow> T_FlowSet;
+typedef set<Flow*, typename Flow::EqualFlow> T_FlowSet;
 
 class User
 {
@@ -133,6 +133,7 @@ public:
     DWORD m_Ipaddr;
     
 private:
+    Flow *m_Fkey;
     T_FlowSet m_FlowSet;
     pthread_mutex_t m_Mutex;
 
@@ -140,7 +141,16 @@ public:
     User (DWORD IpAddr)
     {
         m_Ipaddr = IpAddr;
+        m_Fkey   = new Flow (0, 0, 0, 0, 0);
         pthread_mutex_init(&m_Mutex, NULL);
+    }
+
+    ~User ()
+    {
+        if (m_Fkey)
+        {
+            delete m_Fkey;
+        }
     }
 
     inline DWORD GetIpAddr ()
@@ -148,33 +158,44 @@ public:
         return m_Ipaddr;
     }
 
-    inline Flow* AddFlow (Flow F)
+    inline Flow* AddFlow (Flow *Fkey)
     {
-        auto It = m_FlowSet.insert (F);
+        Flow *NewF = new Flow (Fkey->m_SrcIp, Fkey->m_DstIp,
+                               Fkey->m_SrcPort, Fkey->m_DstPort, Fkey->m_ProtoType);
+        assert (NewF != NULL);
+        
+        auto It = m_FlowSet.insert (NewF);
         if (It.second == false)
         {
             return NULL;
         }
 
         //DebugLog ("Add flow-Pro: %d Src: %u-%u, Dst: %u-%u\r\n", F.m_ProtoType, F.m_SrcIp, F.m_SrcPort, F.m_DstIp, F.m_DstPort);
-        return (Flow*)(&(*It.first));        
+        return NewF;        
     }
 
-    inline Flow* GetFlow (Flow F)
+    inline Flow* GetFlow (DWORD SrcIp, DWORD DstIp, WORD SrcPort, WORD DstPort, DWORD ProtoType)
     {
         Flow* Fctx;
         
         pthread_mutex_lock(&m_Mutex);
-        auto It = m_FlowSet.find (F);
+        
+        m_Fkey->m_SrcIp = SrcIp;
+        m_Fkey->m_DstIp = DstIp;
+        m_Fkey->m_SrcPort = SrcPort;
+        m_Fkey->m_DstPort = DstPort;
+        m_Fkey->m_ProtoType = ProtoType;
+        
+        auto It = m_FlowSet.find (m_Fkey);
         if (It != m_FlowSet.end())
         {
-            Fctx = (Flow*)(&(*It));
+            Fctx = (Flow*)(*It);
         }
         else
         {
             DebugLog ("Add a new flow:%u %u-%u %u-%u\r\n", \
-                      F.m_ProtoType, F.m_SrcIp, F.m_SrcPort, F.m_DstIp, F.m_DstPort);
-            Fctx = AddFlow (F);
+                      m_Fkey->m_ProtoType, m_Fkey->m_SrcIp, m_Fkey->m_SrcPort, m_Fkey->m_DstIp, m_Fkey->m_DstPort);
+            Fctx = AddFlow (m_Fkey);
         }
    
         pthread_mutex_unlock(&m_Mutex);
@@ -182,9 +203,9 @@ public:
         return Fctx;
     }
 
-    inline T_FlowSet* GetFlowSet ()
+    inline DWORD GetFlowNum ()
     {
-        return &m_FlowSet;        
+        return (DWORD)m_FlowSet.size ();        
     }
 
     inline T_FlowSet::iterator begin ()
@@ -199,11 +220,11 @@ public:
 
     typedef struct 
     {
-        bool operator()(User L, User R) 
+        bool operator()(User *L, User *R) 
         {
-            if (L.m_Ipaddr != R.m_Ipaddr)
+            if (L->m_Ipaddr != R->m_Ipaddr)
             {
-                return (L.m_Ipaddr < R.m_Ipaddr);
+                return (L->m_Ipaddr < R->m_Ipaddr);
             }
             
             return 0;
@@ -212,11 +233,12 @@ public:
 };
 
 
-typedef set<User, typename User::EqualUser> T_UsetSet;
+typedef set<User*, typename User::EqualUser> T_UsetSet;
 
 class ClassifyEngine
 {
 private:
+    User* m_Ukey;
     T_UsetSet m_UserSet;
     CfManage *m_CfMng;
     PacketSet *m_PacketSet;
@@ -227,31 +249,36 @@ private:
     ULONG m_Traffic;
 
 private:
-    inline User *AddUser(User U)
+    inline User *AddUser(User* Ukey)
     {
-        auto It = m_UserSet.insert (U);
+        User* NewU = new User (Ukey->m_Ipaddr);
+        assert (NewU != NULL);
+            
+        auto It = m_UserSet.insert (NewU);
         if (It.second == false)
         {
             return NULL;
         }
 
-        return (User *)(&(*It.first));    
+        return NewU;    
     }
     
-    inline User* GetUser (User U)
+    inline User* GetUser (DWORD SrcIp)
     {
         User *Utx;
 
         pthread_mutex_lock(&m_Mutex);
-        auto It = m_UserSet.find (U);
+        m_Ukey->m_Ipaddr = SrcIp;
+        
+        auto It = m_UserSet.find (m_Ukey);
         if (It != m_UserSet.end())
         {
-            Utx = (User *)(&(*It));
+            Utx = (User *)(*It);
         }
         else
         {
-            DebugLog ("Add a new user: %u\r\n", U.m_Ipaddr);
-            Utx = AddUser (U);
+            DebugLog ("Add a new user: %u\r\n", m_Ukey->m_Ipaddr);
+            Utx = AddUser (m_Ukey);
         }
         pthread_mutex_unlock(&m_Mutex);
 
@@ -273,6 +300,8 @@ public:
 
         m_PacketSet = PtSet;
 
+        m_Ukey = new User (0);
+
         pthread_mutex_init(&m_Mutex, NULL);
     }
 
@@ -281,6 +310,11 @@ public:
         if (m_CfMng != NULL)
         {
             delete m_CfMng;
+        }
+
+        if (m_Ukey != NULL)
+        {
+            delete m_Ukey;
         }
         
     }
@@ -306,13 +340,12 @@ public:
     {
         DWORD CfId;
         
-        User *Uctxt = GetUser (User (Pkt->m_SrcIp));
+        User *Uctxt = GetUser (Pkt->m_SrcIp);
         assert (Uctxt != NULL);
 
-        Flow *Fctxt = Uctxt->GetFlow (Flow(Pkt->m_SrcIp, Pkt->m_DstIp, 
+        Flow *Fctxt = Uctxt->GetFlow (Pkt->m_SrcIp, Pkt->m_DstIp, 
                                       Pkt->m_SrcPort, Pkt->m_DstPort, 
-                                      Pkt->m_ProtoType)
-                                     );
+                                      Pkt->m_ProtoType);
         assert (Fctxt != NULL);
 
         return Fctxt;
@@ -326,6 +359,19 @@ public:
     inline ULONG GetTraffic ()
     {
         return m_Traffic;
+    }
+
+    inline ULONG GetFlowNum ()
+    {
+        ULONG FlowNum = 0;
+        
+        for (auto Uit = m_UserSet.begin(), Uend = m_UserSet.end(); Uit != Uend; Uit++)
+        {
+            User *U = *Uit;
+            FlowNum += U->GetFlowNum ();
+        }
+
+        return FlowNum;
     }
 
     inline VOID UpdateStatistic (IpPacket *Pkt)

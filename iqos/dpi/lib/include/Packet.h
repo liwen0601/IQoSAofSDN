@@ -19,51 +19,6 @@ enum ETHTYPE
     ETH_ARP   = 0x0806,
 };
 
-class Packet
-{
-public:
-
-    DWORD m_PktLen;
-    BYTE* m_PktData;
-    
-
-    Packet (BYTE* PktData, DWORD PktLen)
-    {
-        if (PktLen >= PACKET_SIZE)
-        {
-            PktLen = PACKET_SIZE;
-        }
-        
-        m_PktData = new BYTE[PktLen+4];
-        assert (m_PktData != NULL);
-        
-        memcpy (m_PktData, PktData, PktLen);
-        m_PktData[PktLen]   = 0xa3;
-        m_PktData[PktLen+1] = 0xa3;
-        m_PktData[PktLen+2] = 0xa3;
-        m_PktData[PktLen+3] = 0xa3;
-
-        m_PktLen  = PktLen;
-    }
-
-    ~Packet ()
-    {
-        if (m_PktData != NULL)
-        {
-            delete m_PktData;
-            m_PktData = NULL;
-        }
-    }
-
-    inline DWORD GetPacketData (BYTE** PktData)
-    {
-        *PktData = m_PktData;
-
-        return m_PktLen;
-    }
-
-};
-
 /*******************************************************************************************
  ethnet protocol
 ********************************************************************************************/
@@ -130,7 +85,7 @@ struct UdpHdr
 
 typedef set<DWORD> T_IPSet;
 
-class IpPacket:public Packet
+class IpPacket
 {
 public:
     DWORD m_SrcIp;
@@ -139,10 +94,13 @@ public:
     WORD  m_DstPort;
     DWORD m_ProtoType;
 
+    DWORD m_PktLen;
     DWORD m_PayloadLen;
     BYTE* m_Payload;
 
-private:
+private:  
+    BYTE  m_PktData[PACKET_SIZE+4];
+    
     DWORD Ipv4Parse ();
     T_IPSet* m_UserIpSet;
 
@@ -157,10 +115,22 @@ private:
     }
     
 public:
-    IpPacket (BYTE* PktData, DWORD PktLen, T_IPSet *UserIpSet):Packet(PktData, PktLen)
+    IpPacket (BYTE* PktData, DWORD PktLen, T_IPSet *UserIpSet)
     {
         m_SrcIp = 0;
         m_DstIp = 0;
+
+        if (PktLen >= PACKET_SIZE)
+        {
+            PktLen = PACKET_SIZE;
+        }
+        
+        memcpy (m_PktData, PktData, PktLen);
+        m_PktData[PktLen]   = 0xa3;
+        m_PktData[PktLen+1] = 0xa3;
+        m_PktData[PktLen+2] = 0xa3;
+        m_PktData[PktLen+3] = 0xa3;
+        m_PktLen  = PktLen;
         
         m_UserIpSet = UserIpSet;
         Ipv4Parse();

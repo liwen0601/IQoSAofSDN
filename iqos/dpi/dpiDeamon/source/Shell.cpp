@@ -75,11 +75,11 @@ public:
         
         for (auto it = CfEngine->begin (); it != CfEngine->end(); it++)
         {
-            User *U = (User *)(&(*it));
+            User *U = (User *)(*it);
 
             for (auto fit = U->begin (); fit != U->end (); fit++)
             {
-                Flow *F = (Flow *)(&(*fit));
+                Flow *F = (Flow *)(*fit);
                 printf ("%-4u %-16s %-16s %-10u %-10u %-6u %-8u %-6u %-16s\r\n",
                         Id,
                         IP(F->m_SrcIp).c_str(),
@@ -199,11 +199,13 @@ public:
         {
             ULONG PktNum  = CfEngine->GetPacketNum ();
             ULONG Traffic = CfEngine->GetTraffic ();
+            ULONG FlowNUm = CfEngine->GetFlowNum ();
 
             sleep (5);
 
-            printf ("[%u]KPps: %lu, Mbps: %lu \r\n", Index, 
+            printf ("[%u]Kpps: %lu, Kfps: %lu, Mbps: %lu\r\n", Index, 
                    (CfEngine->GetPacketNum () - PktNum)/1000,
+                   (CfEngine->GetFlowNum () - FlowNUm)/1000,
                    (CfEngine->GetTraffic () - Traffic)*8/1000/1000);
 
             Index++;
@@ -243,7 +245,8 @@ class MemUse:public Cmd
     
     VOID Execute (ClassifyEngine *CfEngine)
     {
-        printf ("Memory Usage: %u (Kb)\r\n", GetPhyMemUse ());
+        printf ("Memory Usage: %u (Kb), Create Flow: %lu (K)\r\n", 
+                GetPhyMemUse (), CfEngine->GetFlowNum ()/1000);
     }
 };
 

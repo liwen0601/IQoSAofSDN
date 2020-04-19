@@ -57,11 +57,6 @@ void *DpiAnalysis (void* Arg)
 
     while (1)
     {
-        if (CfEngine->QueueSize () == 0)
-        {
-            sleep(1);
-            continue;
-        }
         
         CfEngine->Analysis ();   
     }

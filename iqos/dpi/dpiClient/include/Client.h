@@ -11,6 +11,10 @@
 #include <BasicType.h>
 #include <Log.h>
 
+#define MAX_PKT_NUM  (256)
+#define PKT_LEN      (1500)
+
+
 using namespace std;
 
 class TCPclient

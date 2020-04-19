@@ -10,9 +10,6 @@
 
 
 static TCPclient* Client = NULL;
-static DWORD Perf = 0;
-#define MAX_PKT_NUM  (256)
-#define PKT_LEN      (1500)
 BYTE   PktData[MAX_PKT_NUM][PKT_LEN];
 DWORD  PktLen[MAX_PKT_NUM];
 
@@ -29,6 +26,37 @@ VOID Help ()
 
     return;
 }
+
+static inline T_IPSet* GetUserIpSet ()
+{
+    char IPaddr[128];
+    static T_IPSet UserIp;
+    
+    FILE *F = fopen (USER_IP_PROPERTITY, "r");
+    if (F == NULL)
+    {
+        printf ("No user ip configured!\r\n");
+        exit (0);
+    }
+    else
+    {
+        while (!feof(F))
+        {
+            char *Ret = fgets (IPaddr, sizeof (IPaddr), F);
+            if (Ret == NULL)
+            {
+                break;
+            }
+
+            UserIp.insert (ntohl(inet_addr(IPaddr)));
+        }
+
+        fclose (F);
+    }
+
+    return &UserIp;
+}
+
 
 
 static VOID Analysis(BYTE *user,  struct pcap_pkthdr *Hdr, BYTE *PktData)
@@ -95,8 +123,10 @@ bool Prepare(CHAR* PcapFile)
 
 VOID PerfTest()
 {
-    DWORD SrcIp = 3657555466;
-    DWORD NewSrcIp = SrcIp+1;
+    DWORD NewDstIp = 1;
+
+    T_IPSet* IpSet = GetUserIpSet ();
+    assert (IpSet != NULL);
     
     while (1)
     {
@@ -105,18 +135,21 @@ VOID PerfTest()
         while (Index < PktNum)
         {
             Ipv4Hdr* Ipv4Header = (Ipv4Hdr*)PktData[Index];
+            DWORD SrcIp = ntohl (Ipv4Header->sourceIP);
+            DWORD DstIp = ntohl (Ipv4Header->destIP);
 
-            if (Ipv4Header->sourceIP == SrcIp)
+            if (IpSet->find (SrcIp) != IpSet->end())
             {
-                Ipv4Header->destIP = NewSrcIp;
+                Ipv4Header->destIP = NewDstIp;
             }
-            else if (Ipv4Header->destIP == SrcIp)
+            else if (IpSet->find (DstIp) != IpSet->end())
             {
-                Ipv4Header->sourceIP = NewSrcIp;
+                Ipv4Header->sourceIP = NewDstIp;
             }
             else
             {
                 printf ("src:%u, dst:%u \r\n", Ipv4Header->sourceIP, Ipv4Header->destIP);
+                break;
             }
             
             
@@ -125,7 +158,7 @@ VOID PerfTest()
             Index++;
         }
 
-        NewSrcIp++;
+        NewDstIp++;
     }
 }
 
@@ -139,6 +172,7 @@ int main(int argc, char *argv[])
     DWORD  ServerPort = 9163;
 
     CHAR* PcapFile = NULL;
+    bool IsPerf = false;
     
     while((ch = getopt(argc, argv, "d:s:p:xf:")) != -1)
     {
@@ -161,7 +195,7 @@ int main(int argc, char *argv[])
             }
             case 'x':
             {
-                Perf = 1;
+                IsPerf = true;
                 break;
             }
             case 'f':
@@ -177,7 +211,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (Perf)
+    if (IsPerf)
     {
         if (!Prepare (PcapFile))
         {
