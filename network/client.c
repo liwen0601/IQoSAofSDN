@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
                 struct iphdr *hdr;
                 hdr=sendStr[i];
                 sendto(s,sendStr[i]+54,len[i]-54,0,(struct sockaddr*)&addr,sizeof(addr));
+                usleep(100);
             }
         /*printf("Packet length: %d\n", len[i]);
         for(int j=0;j<len[i];j++)
@@ -84,7 +85,7 @@ int main(int argc, char *argv[])
                 struct iphdr *hdr;
                 hdr=sendStr[i];
                 sendto(s,sendStr[i]+54,len[i]-54,0,(struct sockaddr*)&addr,sizeof(addr));
-                usleep(1);
+                usleep(100);
             }
 
         }
