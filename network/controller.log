@@ -14,154 +14,21 @@ deleting all flow entries in table
 OVSBridge success
 Layer 5 mode
 Add a flow
-packet in 0000000000000001 52:b6:81:a0:ab:e8 33:33:00:00:00:16 1 []
-packet in 0000000000000001 52:b6:81:a0:ab:e8 33:33:00:00:00:02 1 []
-packet in 0000000000000001 52:b6:81:a0:ab:e8 33:33:00:00:00:16 1 []
-packet in 0000000000000001 0e:f5:61:16:1a:64 33:33:00:00:00:02 2 []
-packet in 0000000000000001 52:b6:81:a0:ab:e8 33:33:00:00:00:02 1 []
-packet in 0000000000000001 0e:f5:61:16:1a:64 33:33:00:00:00:02 2 []
-packet in 0000000000000001 52:b6:81:a0:ab:e8 33:33:00:00:00:02 1 []
-packet in 0000000000000001 0e:f5:61:16:1a:64 ff:ff:ff:ff:ff:ff 2 []
-packet in 0000000000000001 52:b6:81:a0:ab:e8 0e:f5:61:16:1a:64 1 []
+packet in 0000000000000001 5e:0f:05:a0:b9:5c 33:33:00:00:00:16 1 []
+packet in 0000000000000001 82:68:90:59:45:18 33:33:00:00:00:02 2 []
+packet in 0000000000000001 5e:0f:05:a0:b9:5c 33:33:00:00:00:02 1 []
+packet in 0000000000000001 82:68:90:59:45:18 33:33:00:00:00:02 2 []
+packet in 0000000000000001 5e:0f:05:a0:b9:5c 33:33:00:00:00:02 1 []
+packet in 0000000000000001 82:68:90:59:45:18 ff:ff:ff:ff:ff:ff 2 []
+packet in 0000000000000001 5e:0f:05:a0:b9:5c 82:68:90:59:45:18 1 []
 Add a flow
 Add a flow
 Add a flow
 Add a flow
 Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 52:b6:81:a0:ab:e8 2 [ipv4(csum=47494,dst='10.0.0.1',flags=2,header_length=5,identification=27955,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=60,ttl=64,version=4)]
+packet in 0000000000000001 82:68:90:59:45:18 5e:0f:05:a0:b9:5c 2 [ipv4(csum=49965,dst='10.0.0.1',flags=2,header_length=5,identification=25484,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=60,ttl=64,version=4)]
 Add a flow
 Add a flow
 Add a flow
 Add a flow
 Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 52:b6:81:a0:ab:e8 2 [ipv4(csum=47501,dst='10.0.0.1',flags=2,header_length=5,identification=27956,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=52,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 52:b6:81:a0:ab:e8 2 [ipv4(csum=46052,dst='10.0.0.1',flags=2,header_length=5,identification=27957,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 52:b6:81:a0:ab:e8 2 [ipv4(csum=46051,dst='10.0.0.1',flags=2,header_length=5,identification=27958,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 52:b6:81:a0:ab:e8 2 [ipv4(csum=46050,dst='10.0.0.1',flags=2,header_length=5,identification=27959,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 52:b6:81:a0:ab:e8 2 [ipv4(csum=46049,dst='10.0.0.1',flags=2,header_length=5,identification=27960,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 52:b6:81:a0:ab:e8 2 [ipv4(csum=46048,dst='10.0.0.1',flags=2,header_length=5,identification=27961,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 52:b6:81:a0:ab:e8 2 [ipv4(csum=46047,dst='10.0.0.1',flags=2,header_length=5,identification=27962,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 52:b6:81:a0:ab:e8 2 [ipv4(csum=46046,dst='10.0.0.1',flags=2,header_length=5,identification=27963,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 52:b6:81:a0:ab:e8 2 [ipv4(csum=46045,dst='10.0.0.1',flags=2,header_length=5,identification=27964,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 52:b6:81:a0:ab:e8 2 [ipv4(csum=46044,dst='10.0.0.1',flags=2,header_length=5,identification=27965,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 52:b6:81:a0:ab:e8 2 [ipv4(csum=46043,dst='10.0.0.1',flags=2,header_length=5,identification=27966,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=1500,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 ff:ff:ff:ff:ff:ff 2 []
-found modify, reset
-deleting all flow entries in table
-OVSBridge success
-Layer 5 mode
-Set QoS to port s1-eth1
-QoS success
-Set QoS to port s1-eth2
-QoS success
-Add a flow
-packet in 0000000000000001 0e:f5:61:16:1a:64 52:b6:81:a0:ab:e8 2 [ipv4(csum=52634,dst='10.0.0.1',flags=2,header_length=5,identification=22815,offset=0,option=None,proto=6,src='10.0.0.2',tos=0,total_length=60,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 52:b6:81:a0:ab:e8 0e:f5:61:16:1a:64 1 [ipv4(csum=9914,dst='10.0.0.2',flags=2,header_length=5,identification=0,offset=0,option=None,proto=6,src='10.0.0.1',tos=0,total_length=60,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 52:b6:81:a0:ab:e8 0e:f5:61:16:1a:64 1 [ipv4(csum=16755,dst='10.0.0.2',flags=2,header_length=5,identification=58702,offset=0,option=None,proto=6,src='10.0.0.1',tos=0,total_length=52,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 52:b6:81:a0:ab:e8 0e:f5:61:16:1a:64 1 [ipv4(csum=16754,dst='10.0.0.2',flags=2,header_length=5,identification=58703,offset=0,option=None,proto=6,src='10.0.0.1',tos=0,total_length=52,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 52:b6:81:a0:ab:e8 0e:f5:61:16:1a:64 1 [ipv4(csum=16753,dst='10.0.0.2',flags=2,header_length=5,identification=58704,offset=0,option=None,proto=6,src='10.0.0.1',tos=0,total_length=52,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 52:b6:81:a0:ab:e8 0e:f5:61:16:1a:64 1 [ipv4(csum=16752,dst='10.0.0.2',flags=2,header_length=5,identification=58705,offset=0,option=None,proto=6,src='10.0.0.1',tos=0,total_length=52,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 52:b6:81:a0:ab:e8 0e:f5:61:16:1a:64 1 [ipv4(csum=16751,dst='10.0.0.2',flags=2,header_length=5,identification=58706,offset=0,option=None,proto=6,src='10.0.0.1',tos=0,total_length=52,ttl=64,version=4)]
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-Add a flow
-packet in 0000000000000001 52:b6:81:a0:ab:e8 ff:ff:ff:ff:ff:ff 1 []
-packet in 0000000000000001 52:b6:81:a0:ab:e8 ff:ff:ff:ff:ff:ff 1 []
-packet in 0000000000000001 52:b6:81:a0:ab:e8 ff:ff:ff:ff:ff:ff 1 []
-packet in 0000000000000001 52:b6:81:a0:ab:e8 ff:ff:ff:ff:ff:ff 1 []
-packet in 0000000000000001 0e:f5:61:16:1a:64 ff:ff:ff:ff:ff:ff 2 []
-packet in 0000000000000001 0e:f5:61:16:1a:64 ff:ff:ff:ff:ff:ff 2 []
-packet in 0000000000000001 0e:f5:61:16:1a:64 ff:ff:ff:ff:ff:ff 2 []
-packet in 0000000000000001 0e:f5:61:16:1a:64 ff:ff:ff:ff:ff:ff 2 []
-packet in 0000000000000001 0e:f5:61:16:1a:64 ff:ff:ff:ff:ff:ff 2 []
-packet in 0000000000000001 0e:f5:61:16:1a:64 ff:ff:ff:ff:ff:ff 2 []
-packet in 0000000000000001 0e:f5:61:16:1a:64 ff:ff:ff:ff:ff:ff 2 []
-packet in 0000000000000001 0e:f5:61:16:1a:64 ff:ff:ff:ff:ff:ff 2 []
-packet in 0000000000000001 0e:f5:61:16:1a:64 ff:ff:ff:ff:ff:ff 2 []
