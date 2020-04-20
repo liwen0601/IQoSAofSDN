@@ -33,9 +33,8 @@ VOID CfManage::Init ()
     // Google
     //#######################################################
     {
-    Classifier *Google = NewClassifier ("Google", IPV4_VERSION, 443);
+    Classifier *Google = NewClassifier ("Google", LV4_TCP, 443);
 
-    /* add State */
     State *State0 = Google->NewState (false);
     
     State *State1 = Google->NewState (true);   
@@ -54,7 +53,7 @@ VOID CfManage::Init ()
     // Youtube
     //#######################################################
     {
-    Classifier *Youtube = NewClassifier ("Youtube", IPV4_VERSION, 443);
+    Classifier *Youtube = NewClassifier ("Youtube", LV4_TCP, 443);
 
     /* add State */
     State *State0 = Youtube->NewState (false);
@@ -79,7 +78,7 @@ VOID CfManage::Init ()
     // Zoom
     //#######################################################
     {
-    Classifier *Zoom = NewClassifier ("Zoom", IPV4_VERSION, 443);
+    Classifier *Zoom = NewClassifier ("Zoom", LV4_TCP, 443);
 
     /* add State */
     State *State0 = Zoom->NewState (false);

@@ -70,6 +70,7 @@ void *ProxyThread (void* Arg)
             }
             else
             {
+                Fctx->m_PacketNum++;
                 CfEngine->UpdateStatistic (Ip);
                 delete Ip;
             }
