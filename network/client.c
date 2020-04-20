@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     pcap_close(p);
     if(strcmp("TCP",argv[3])==0)
     {
+        
         int s = socket(AF_INET, SOCK_STREAM, 0);
         struct sockaddr_in addr;
         memset(&addr,0,sizeof(addr));
@@ -61,6 +62,8 @@ int main(int argc, char *argv[])
                 sendto(s,sendStr[i]+54,len[i]-54,0,(struct sockaddr*)&addr,sizeof(addr));
                 usleep(100);
             }
+            //shutdown(s,SHUT_RDWR);
+            //usleep(1000);
         /*printf("Packet length: %d\n", len[i]);
         for(int j=0;j<len[i];j++)
         {
@@ -85,7 +88,6 @@ int main(int argc, char *argv[])
                 struct iphdr *hdr;
                 hdr=sendStr[i];
                 sendto(s,sendStr[i]+54,len[i]-54,0,(struct sockaddr*)&addr,sizeof(addr));
-                usleep(100);
             }
 
         }
