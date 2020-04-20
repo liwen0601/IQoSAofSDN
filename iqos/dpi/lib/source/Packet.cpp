@@ -87,6 +87,7 @@ DWORD IpPacket::Ipv4Parse ()
                 }
                 else
                 {
+                    DebugLog ("User ip not configured yet...\r\n");
                 }
     						
     			break;
@@ -126,6 +127,7 @@ DWORD IpPacket::Ipv4Parse ()
                 }
                 else
                 {
+                    DebugLog ("User ip not configured yet...\r\n");
                 }
 
     			break;

@@ -63,7 +63,7 @@ void *ProxyThread (void* Arg)
             Flow *Fctx = CfEngine->QueryFlow (Ip);
             CfId = Fctx->GetCfId ();
             
-            if (Fctx->m_SduNum <= DPI_NUM && CfId == 0)
+            if (Fctx->m_SduNum <= DPI_NUM && (CfId == 0) && (Ip->m_Payload > 0))
             {
                 DebugLog ("Push packet: %p \r\n", Ip);
                 PktSet->Push (Ip);

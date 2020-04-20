@@ -29,6 +29,12 @@ DWORD ClassifyEngine::Classify (IpPacket *Pkt)
         return CfId;
     }
 
+    if (Fctxt->m_SduNum > DPI_NUM)
+    {
+        Fctxt->SetCfId (CF_UN_IDENTIFY);
+        return CF_UN_IDENTIFY;
+    }
+
     T_Result *PtnRst = m_CfMng->PatternMach (Pkt->m_Payload, Pkt->m_PayloadLen);
 
     T_CfSet CfSet;

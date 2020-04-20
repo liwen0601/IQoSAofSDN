@@ -14,7 +14,7 @@
 
 using namespace std;
 
-typedef vector<IpPacket*> T_Packets;
+typedef queue<IpPacket*> T_Packets;
 
 class PacketSet
 {
@@ -32,7 +32,7 @@ public:
     {
         pthread_mutex_lock(&m_Mutex);
 
-        m_PacketSet.push_back (Pkt);
+        m_PacketSet.push (Pkt);
 
         pthread_mutex_unlock(&m_Mutex);
     }
@@ -41,8 +41,8 @@ public:
     {
         pthread_mutex_lock(&m_Mutex);
 
-        IpPacket* Pkt = m_PacketSet.back ();
-        m_PacketSet.pop_back ();
+        IpPacket* Pkt = m_PacketSet.front ();
+        m_PacketSet.pop ();
 
         pthread_mutex_unlock(&m_Mutex);
 

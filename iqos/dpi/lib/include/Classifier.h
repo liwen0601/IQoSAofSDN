@@ -172,6 +172,18 @@ public:
         return Cf;
     }
 
+    inline Classifier* NewClassifier (DWORD Cfid, string Name, DWORD Lv4Type, DWORD Port=0)
+    {
+        DWORD CfId = Cfid;
+        
+        Classifier* Cf = new Classifier (Name, CfId, Lv4Type, Port);
+        assert (Cf != NULL);
+
+        m_CfId2Cf[CfId] = Cf;
+
+        return Cf;
+    }
+
     inline DWORD NewPattern (string Pattern)
     {
         DWORD Pid = m_Id2Pattern.size()+1;

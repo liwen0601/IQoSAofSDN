@@ -65,6 +65,8 @@ typedef unsigned int     BOOL;
 #define USER_IP_PROPERTITY  ("ip.properties")
 
 #define CF_ID_BEGIN         (2000)
+#define CF_UN_IDENTIFY      (9999)
+
 #define CF_SUPPORT_FILE     ("SupportProtocol.txt")
 
 #define PACKET_SIZE         (1500)
