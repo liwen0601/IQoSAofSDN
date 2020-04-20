@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
                 struct iphdr *hdr;
                 hdr=sendStr[i];
                 sendto(s,sendStr[i]+54,len[i]-54,0,(struct sockaddr*)&addr,sizeof(addr));
-                usleep(100);
+                usleep(1);
             }
             //shutdown(s,SHUT_RDWR);
             //usleep(1000);
@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
                 struct iphdr *hdr;
                 hdr=sendStr[i];
                 sendto(s,sendStr[i]+54,len[i]-54,0,(struct sockaddr*)&addr,sizeof(addr));
+                usleep(1);
             }
 
         }

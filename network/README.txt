@@ -15,12 +15,12 @@ To start the network topo and controller correctly, please configure the environ
    s1 ovs-vsctl set-manager "ptcp:6640"
    Then restart Mininet
 6. xterm h1 h2
-   TCP bandwidth testing (default server port 5001)
-   h1: iperf -s
-   h2: iperf -c 10.0.0.1 -b 100G
+   TCP bandwidth testing
+   h1: ./server TCP 5001
+   h2: ./client 10.0.0.1 5001 TCP
    UDP bandwidth testing (default server port 5001)
-   h1: iperf -s -u
-   h2: iperf -c 10.0.0.1 -b 100G -u
+   h1: ./server UDP 5001
+   h2: ./client 10.0.0.1 5001 UDP
    
    You can also add -p port_num to specify server port to test more cases.
    You can modify "config.ini" at running time. The new configuration would be enabled once you save the file.
