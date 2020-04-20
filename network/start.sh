@@ -1,3 +1,5 @@
+ovs-vsctl set-manager ptcp:6640
+#../iqos/dpi/dpiDeamon/dpiDeamon& 3> /dev/null
 mn -c
 ryu-manager controller.py 2> controller.log&
 python monitor.py&
@@ -7,3 +9,4 @@ python monitor.py&
 python network-topo.py
 killall ryu-manager
 killall python
+killall dpiDeamon

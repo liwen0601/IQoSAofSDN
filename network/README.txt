@@ -11,9 +11,6 @@ To start the network topo and controller correctly, please configure the environ
 4. Copy "config_L4.ini" or "config_L5.ini" to "config.ini". You can modify the content based on the format. (Do not copy the comments)
 5. Then start the Mininet with network topo and controller: 
    sudo ./start.sh
-6. If this is the first time you start Mininet, set openvswitch manager: 
-   s1 ovs-vsctl set-manager "ptcp:6640"
-   Then restart Mininet
 6. xterm h1 h2
    TCP bandwidth testing
    h1: ./server TCP 5001

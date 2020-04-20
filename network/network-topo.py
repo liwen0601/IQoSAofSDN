@@ -29,7 +29,7 @@ from mininet.log import setLogLevel, info
 
 def emptyNet():
     net = Mininet( controller=RemoteController )
-    net.addController( 'c0' )
+    c0 = net.addController( 'c0' )
     h1 = net.addHost( 'h1' )
     h2 = net.addHost( 'h2' )
     s1 = net.addSwitch( 's1' )
@@ -38,7 +38,7 @@ def emptyNet():
     net.addLink( h2, s1 )
 
     net.start()
-    #s1.cmd('ovs-vsctl set-controller s1 remote:127.0.0.1:6654')
+    #c0.cmd('../iqos/dpi/dpiDeamon/dpiDeamon&')
     #s1.cmd('ovs-vsctl set-manager ptcp:6640')
     
     CLI( net )

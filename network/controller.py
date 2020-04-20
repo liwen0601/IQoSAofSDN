@@ -20,14 +20,15 @@ from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
+from ryu.lib.packet import tcp
+from ryu.lib.packet import udp
 from ryu.lib.packet import ether_types
 from ryu.lib.packet import ipv4
 from ryu.lib.ovs import bridge
 from ryu.lib.ovs import vsctl
 import time
 import os
-import threading
-
+import socket
 #TCP=6
 #UDP=17
 
@@ -45,7 +46,12 @@ class SimpleSwitch13(app_manager.RyuApp):
     mode = 1 #mode: 1-Layer4; 2-Layer5; 3-Content
     L4 = [] #L4: 1-TCP; 2-UDP
     L5 = [] #L5: guaranteed L4 and port
+    Content = [] #Content: guaranteed content protocol ID
     ev = 0
+    connected=False
+    dpi_server = 0
+
+
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
@@ -56,7 +62,17 @@ class SimpleSwitch13(app_manager.RyuApp):
         self.ovs_vsctl = vsctl.VSCtl(self.ovsdb_addr)
         self.lastModify=os.path.getmtime("config.ini")
         print("init finish")
-
+        server_ip = "127.0.0.1"
+        server_port = 9163
+        bufsize=1024
+        addr=(server_ip,server_port)
+        try:
+            self.dpi_server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            self.dpi_server.connect(addr)
+            self.connected=True
+            print("Connected to dpi server")
+        except:
+            self.connected=False
 
     def remove_table_flows(self, datapath, table_id, match, instructions):
         """Create OFP flow mod message to remove flows from table."""
@@ -159,7 +175,7 @@ class SimpleSwitch13(app_manager.RyuApp):
             while True:
                 line = f.readline()
                 parameters = line.split(' ')
-                print(parameters)
+                #print(parameters)
                 if len(parameters) != 4:
                     #print(parameters)
                     break
@@ -188,7 +204,42 @@ class SimpleSwitch13(app_manager.RyuApp):
                     self.logger.info("QoS success")
                 except:
                     self.logger.info("QoS fail")
-        
+        elif self.mode == 3:
+            self.logger.info("Content mode")
+            queue_config=[]
+            while True:
+                line = f.readline()
+                parameters = line.split(' ')
+                #print(parameters)
+                if len(parameters) != 3:
+                    #print(parameters)
+                    break
+                self.Content.append(int(parameters[0]))
+                maxRate = int(parameters[1])
+                minRate = int(parameters[2])
+
+                config={}
+                config['max-rate']=str(maxRate)
+                config['min-rate']=str(minRate)
+                queue_config.append(config)
+                        
+            maxRate = int(parameters[0])
+            minRate = int(parameters[1])
+    
+            config={}
+            config['max-rate']=str(maxRate)
+            config['min-rate']=str(minRate)
+            queue_config.append(config)           
+            
+
+            for port_name in vif_ports:
+                self.logger.info("Set QoS to port %s",port_name)
+                try:
+                    self.ovs_bridge.set_qos(port_name,type='linux-htb',queues=queue_config)
+                    self.logger.info("QoS success")
+                except:
+                    self.logger.info("QoS fail")
+
                
         # install table-miss flow entry
         #
@@ -234,6 +285,19 @@ class SimpleSwitch13(app_manager.RyuApp):
         # If you hit this you might want to increase
         # the "miss_send_length" of your switch
         #self.ovs_bridge.init()
+        if self.connected==False:
+            server_ip = "127.0.0.1"
+            server_port = 9163
+            bufsize=1024
+            addr=(server_ip,server_port)
+            try:
+                self.dpi_server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+                self.dpi_server.connect(addr)
+                self.connected=True
+                print("Connected to dpi server")
+            except:
+                self.connected=False
+
         self.ev=ev
 
         f = 0
@@ -257,9 +321,19 @@ class SimpleSwitch13(app_manager.RyuApp):
         in_port = msg.match['in_port']
         ofp = datapath.ofproto
         pkt = packet.Packet(msg.data)
+        #print(pkt.data)
+        tcp_pkt = pkt.get_protocol(tcp.tcp)
+       
         eth = pkt.get_protocols(ethernet.ethernet)[0]
 
-        ip = pkt.get_protocols(ipv4.ipv4)
+        ip = pkt.get_protocol(ipv4.ipv4)
+
+        tr=0
+        if(ip!=None):
+            if ip.proto==6:
+                tr = pkt.get_protocol(tcp.tcp)
+            elif ip.proto==17:
+                tr = pkt.get_protocol(udp.udp)
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
@@ -287,7 +361,7 @@ class SimpleSwitch13(app_manager.RyuApp):
 
 
         # install a flow to avoid packet_in next time
-        if out_port != ofproto.OFPP_FLOOD:
+        if self.mode!=3 and out_port != ofproto.OFPP_FLOOD:
             match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
             if self.mode == 1:
                 actions=[parser.OFPActionSetQueue(len(self.L4)),parser.OFPActionOutput(out_port)]
@@ -301,44 +375,67 @@ class SimpleSwitch13(app_manager.RyuApp):
                 self.add_flow(datapath, 1, match, actions)
             #match = parser.OFPMatch(ip_proto="0x06",in_port=in_port, eth_dst=dst, eth_src=src)
 
-            if self.mode == 1:   #L4 mode
-                for i in range(len(self.L4)):
-                    if self.L4[i] == 1:    #TCP
-                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=6)
-                    elif self.L4[i] == 2:  #UDP
-                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=17)
-                    actions=[parser.OFPActionSetQueue(i),parser.OFPActionOutput(out_port)]
+        if self.mode == 1:   #L4 mode
+            for i in range(len(self.L4)):
+                if self.L4[i] == 1:    #TCP
+                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=6)
+                elif self.L4[i] == 2:  #UDP
+                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=17)
+                actions=[parser.OFPActionSetQueue(i),parser.OFPActionOutput(out_port)]
             # verify if we have a valid buffer_id, if yes avoid to send both
             # flow_mod & packet_out
             #print("add TCP")
-                    if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                        self.add_flow(datapath, 2, match, actions, msg.buffer_id)
-                    else:
-                        self.add_flow(datapath, 2, match, actions)
+                if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                    self.add_flow(datapath, 2, match, actions, msg.buffer_id)
+                else:
+                    self.add_flow(datapath, 2, match, actions)
 
-            elif self.mode ==2: #L5 mode
-                for i in range(len(self.L5)):
-                    if self.L5[i][0] == 1:
-                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=6,tcp_src=self.L5[i][1]) 
-                    elif self.L5[i][0] == 2:
-                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=17,udp_src=self.L5[i][1])
-                    actions=[parser.OFPActionSetQueue(i),parser.OFPActionOutput(out_port)]
-                    if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                        self.add_flow(datapath, 2, match, actions, msg.buffer_id)
-                    else:
-                        self.add_flow(datapath, 2, match, actions)
+        elif self.mode ==2: #L5 mode
+            for i in range(len(self.L5)):
+                if self.L5[i][0] == 1:
+                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=6,tcp_src=self.L5[i][1]) 
+                elif self.L5[i][0] == 2:
+                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=17,udp_src=self.L5[i][1])
+                actions=[parser.OFPActionSetQueue(i),parser.OFPActionOutput(out_port)]
+                if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                    self.add_flow(datapath, 2, match, actions, msg.buffer_id)
+                else:
+                    self.add_flow(datapath, 2, match, actions)
                     
-                    if self.L5[i][0] == 1:
-                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=6,tcp_dst=self.L5[i][1]) 
-                    elif self.L5[i][0] == 2:
-                        match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=17,udp_dst=self.L5[i][1])
-                    actions=[parser.OFPActionSetQueue(i),parser.OFPActionOutput(out_port)]
-                    if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                        self.add_flow(datapath, 2, match, actions, msg.buffer_id)
-                    else:
-                        self.add_flow(datapath, 2, match, actions)
+                if self.L5[i][0] == 1:
+                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=6,tcp_dst=self.L5[i][1]) 
+                elif self.L5[i][0] == 2:
+                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src,eth_type=0x0800,ip_proto=17,udp_dst=self.L5[i][1])
+                actions=[parser.OFPActionSetQueue(i),parser.OFPActionOutput(out_port)]
+                if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                    self.add_flow(datapath, 2, match, actions, msg.buffer_id)
+                else:
+                    self.add_flow(datapath, 2, match, actions)
+        elif self.mode==3:
+            #print("see me?")
+            try:
+                #print(pkt.data[14:])
+                self.dpi_server.send(pkt.data[14:])  
+            except:
+                print("send fail")
+            ret = self.dpi_server.recv(4)
+            pronum = int(ret[0])+int(ret[1])*256
+            #print(pronum)
+            if pronum != 0:
+                if ip!=None and ip.proto == 6:
+                    match = parser.OFPMatch(in_port=in_port, eth_type=0x0800,ip_proto=ip.proto,ipv4_src=ip.src,ipv4_dst=ip.dst,tcp_src=tr.src_port,tcp_dst=tr.dst_port)
+                if ip!=None and ip.proto == 17:
+                    match = parser.OFPMatch(in_port=in_port, eth_type=0x0800,ip_proto=ip.proto,ipv4_src=ip.src,ipv4_dst=ip.dst,udp_src=tr.src_port,udp_dst=tr.dst_port)
+                if pronum in self.Content.index:
+                    actions=[parser.OFPActionSetQueue(self.Content.index(pronum)),parser.OFPActionOutput(out_port)]
+                else:
+                     actions=[parser.OFPActionSetQueue(len(self.Content)),parser.OFPActionOutput(out_port)]
+                if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                    self.add_flow(datapath, 2, match, actions, msg.buffer_id)
+                else:
+                    self.add_flow(datapath, 2, match, actions)
 
-
+        #print("see me?")
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
             data = msg.data
