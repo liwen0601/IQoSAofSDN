@@ -15,9 +15,9 @@
 
 int main(int argc, char *argv[])
 {
-    if(argc!=4)
+    if(argc!=5)
     {
-        printf("./client server_ip, server_port TCP/UDP\n");
+        printf("./client server_ip, server_port TCP/UDP */pcapng\n");
         return 0;    
     }
     char ip[32];
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     sscanf(argv[2],"%d",&port);
 
     char ebuf[PCAP_ERRBUF_SIZE];
-    pcap_t *p = pcap_open_offline("youtube.pcapng",ebuf);
+    pcap_t *p = pcap_open_offline(argv[4],ebuf);
     struct pcap_pkthdr packet;
     unsigned char sendStr[500][2000];
     int len[500];

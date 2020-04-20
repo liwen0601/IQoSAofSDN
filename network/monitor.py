@@ -1,6 +1,8 @@
 import os
+import time
 lastModify = os.path.getmtime("config.ini")
 while True:
+    time.sleep(1)
     try:
         lm = os.path.getmtime("config.ini")
         if lm > lastModify:

@@ -85,7 +85,7 @@ class SimpleSwitch13(app_manager.RyuApp):
     def reset(self):
         self.L4=[]
         self.L5=[]
-
+        self.Content=[]
         datapath = self.ev.msg.datapath
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
@@ -426,10 +426,10 @@ class SimpleSwitch13(app_manager.RyuApp):
                     match = parser.OFPMatch(in_port=in_port, eth_type=0x0800,ip_proto=ip.proto,ipv4_src=ip.src,ipv4_dst=ip.dst,tcp_src=tr.src_port,tcp_dst=tr.dst_port)
                 if ip!=None and ip.proto == 17:
                     match = parser.OFPMatch(in_port=in_port, eth_type=0x0800,ip_proto=ip.proto,ipv4_src=ip.src,ipv4_dst=ip.dst,udp_src=tr.src_port,udp_dst=tr.dst_port)
-                if pronum in self.Content.index:
+                if pronum in self.Content:
                     actions=[parser.OFPActionSetQueue(self.Content.index(pronum)),parser.OFPActionOutput(out_port)]
                 else:
-                     actions=[parser.OFPActionSetQueue(len(self.Content)),parser.OFPActionOutput(out_port)]
+                    actions=[parser.OFPActionSetQueue(len(self.Content)),parser.OFPActionOutput(out_port)]
                 if msg.buffer_id != ofproto.OFP_NO_BUFFER:
                     self.add_flow(datapath, 2, match, actions, msg.buffer_id)
                 else:

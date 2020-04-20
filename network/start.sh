@@ -1,4 +1,6 @@
 ovs-vsctl set-manager ptcp:6640
+ovs-vsctl del-br s1
+ovs-vsctl -- --all destroy QoS -- --all destroy Queue
 #../iqos/dpi/dpiDeamon/dpiDeamon& 3> /dev/null
 mn -c
 ryu-manager controller.py 2> controller.log&

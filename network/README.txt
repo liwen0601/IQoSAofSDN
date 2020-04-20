@@ -14,10 +14,10 @@ To start the network topo and controller correctly, please configure the environ
 6. xterm h1 h2
    TCP bandwidth testing
    h1: ./server TCP 5001
-   h2: ./client 10.0.0.1 5001 TCP
+   h2: ./client 10.0.0.1 5001 TCP youtube.pcapng
    UDP bandwidth testing (default server port 5001)
    h1: ./server UDP 5001
-   h2: ./client 10.0.0.1 5001 UDP
+   h2: ./client 10.0.0.1 5001 UDP youtube.pcapng
    
    You can also add -p port_num to specify server port to test more cases.
    You can modify "config.ini" at running time. The new configuration would be enabled once you save the file.
