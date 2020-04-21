@@ -65,7 +65,7 @@ void *ProxyThread (void* Arg)
             
             if (Fctx->m_SduNum <= DPI_NUM && (CfId == 0) && (Ip->m_Payload > 0))
             {
-                DebugLog ("Push packet: %p \r\n", Ip);
+                DebugLog ("Push packet: %p [%u]\r\n", Ip, PktSet->Size ());
                 PktSet->Push (Ip);
             }
             else

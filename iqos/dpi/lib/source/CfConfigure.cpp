@@ -46,6 +46,11 @@ VOID CfManage::Init ()
     DWORD Pid1 = NewPattern ("www.google-analytics.com");
     State0->AddNextState (Pid1, State2->GetId ());
     MapPatternCf (Pid1, Google); 
+	
+	State *State3 = Google->NewState (true);    
+    DWORD Pid2 = NewPattern ("www.gstatic.com");
+    State0->AddNextState (Pid2, State2->GetId ());
+    MapPatternCf (Pid2, Google); 
     
     }
 
@@ -131,12 +136,16 @@ VOID CfManage::Init ()
 
     /* add State */
     State *State0 = Facebook->NewState (false);
-    State *State1 = Facebook->NewState (true);
     
-    DWORD Pid0 = NewPattern ("www.facebook.com");
-    State0->AddNextState (Pid0, State1->GetId ());
-
+    State *State1 = Facebook->NewState (true);   
+    DWORD Pid0 = NewPattern (".facebook.com");
+    State0->AddNextState (Pid0, State1->GetId ()); 
     MapPatternCf (Pid0, Facebook);
+
+     State *State2 = Facebook->NewState (true);   
+    DWORD Pid1 = NewPattern ("fbcdn.net");
+    State0->AddNextState (Pid1, State2->GetId ()); 
+    MapPatternCf (Pid1, Facebook);
     }
 
     //#######################################################

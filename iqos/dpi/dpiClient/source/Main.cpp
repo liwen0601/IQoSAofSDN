@@ -121,7 +121,7 @@ bool Prepare(CHAR* PcapFile)
 }
 
 
-VOID PerfTest()
+VOID PerfTest(bool IsPerf)
 {
     DWORD NewDstIp = 1;
 
@@ -135,21 +135,24 @@ VOID PerfTest()
         while (Index < PktNum)
         {
             Ipv4Hdr* Ipv4Header = (Ipv4Hdr*)PktData[Index];
-            DWORD SrcIp = ntohl (Ipv4Header->sourceIP);
-            DWORD DstIp = ntohl (Ipv4Header->destIP);
+            if (IsPerf)
+            {
+                DWORD SrcIp = ntohl (Ipv4Header->sourceIP);
+                DWORD DstIp = ntohl (Ipv4Header->destIP);
 
-            if (IpSet->find (SrcIp) != IpSet->end())
-            {
-                Ipv4Header->destIP = NewDstIp;
-            }
-            else if (IpSet->find (DstIp) != IpSet->end())
-            {
-                Ipv4Header->sourceIP = NewDstIp;
-            }
-            else
-            {
-                printf ("src:%u, dst:%u \r\n", Ipv4Header->sourceIP, Ipv4Header->destIP);
-                break;
+                if (IpSet->find (SrcIp) != IpSet->end())
+                {
+                    Ipv4Header->destIP = NewDstIp;
+                }
+                else if (IpSet->find (DstIp) != IpSet->end())
+                {
+                    Ipv4Header->sourceIP = NewDstIp;
+                }
+                else
+                {
+                    printf ("src:%u, dst:%u \r\n", Ipv4Header->sourceIP, Ipv4Header->destIP);
+                    break;
+                }
             }
             
             
@@ -159,6 +162,10 @@ VOID PerfTest()
         }
 
         NewDstIp++;
+        if (!IsPerf)
+        {
+            break;
+        }
     }
 }
 
@@ -211,7 +218,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (IsPerf)
+    if (PcapFile)
     {
         if (!Prepare (PcapFile))
         {
@@ -221,7 +228,7 @@ int main(int argc, char *argv[])
         Client = new TCPclient (ServerIp, ServerPort);
         assert (Client != NULL);
 
-        PerfTest();
+        PerfTest(IsPerf);
     }
     else
     {

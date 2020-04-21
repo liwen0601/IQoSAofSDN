@@ -17,7 +17,7 @@ void WmMatch::Compile(T_Pid2Pattern *Patterns)
         BYTE *Ptn = (BYTE*)((ItP->second).c_str());
 		for (DWORD Ch = 0; Ch < m_Min - BLOCK_SIZE + 1; ++Ch) 
         {
-			DWORD Block = Ptn[Ch]<<3 | Ptn[Ch+1]<<2 | Ptn[Ch+2];
+			DWORD Block = Ptn[Ch]<<16 | Ptn[Ch+1]<<8 | Ptn[Ch+2];
             
 			DWORD BlockPos = m_Min - Ch - BLOCK_SIZE;
 			DWORD Shift = (BlockPos == 0) ? (m_Min - BLOCK_SIZE + 1) : BlockPos;
@@ -68,7 +68,7 @@ T_Result* WmMatch::Search(const BYTE* Text, const DWORD Length)
     
     for (DWORD Pos = m_Min - BLOCK_SIZE; Pos < Length; ++Pos) 
     {
-        DWORD block = Text[Pos]<<3 | Text[Pos+1]<<2 |Text[Pos+2];
+        DWORD block = Text[Pos]<<16 | Text[Pos+1]<<8 |Text[Pos+2];
         
         auto shift_value = m_ShiftTable.find(block);
         if (shift_value == m_ShiftTable.end()) 
@@ -100,14 +100,14 @@ T_Result* WmMatch::Search(const BYTE* Text, const DWORD Length)
             const BYTE* Tg = Text + CurPos;
             while (Index < Length) 
             {
-                if (*Pt != *Tg) 
+                if (*Pt++ != *Tg++) 
                 {
                     break;
                 }
-
+                
                 ++Index;
             }
-                    
+
             if (Index == Length) 
             {
                 m_Result.insert (Pid);
