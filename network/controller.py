@@ -412,12 +412,14 @@ class SimpleSwitch13(app_manager.RyuApp):
                 else:
                     self.add_flow(datapath, 2, match, actions)
         elif self.mode==3:
+            if self.connected == False:
+                print("Cannot connect to dpiDeamon, Drop")
             #print("see me?")
             try:
                 #print(pkt.data[14:])
                 self.dpi_server.send(pkt.data[14:])  
             except:
-                print("send fail")
+                a=0
             ret = self.dpi_server.recv(4)
             pronum = int(ret[0])+int(ret[1])*256
             #print(pronum)
@@ -431,9 +433,9 @@ class SimpleSwitch13(app_manager.RyuApp):
                 else:
                     actions=[parser.OFPActionSetQueue(len(self.Content)),parser.OFPActionOutput(out_port)]
                 if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                    self.add_flow(datapath, 2, match, actions, msg.buffer_id)
+                    self.add_flow(datapath, 1, match, actions, msg.buffer_id)
                 else:
-                    self.add_flow(datapath, 2, match, actions)
+                    self.add_flow(datapath, 1, match, actions)
 
         #print("see me?")
         data = None

@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 {
     if(argc!=5)
     {
-        printf("./client server_ip, server_port TCP/UDP */pcapng\n");
+        printf("./client server_ip, server_port TCP/UDP *.pcapng\n");
         return 0;    
     }
     char ip[32];
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
         addr.sin_addr.s_addr = inet_addr(ip);
         addr.sin_port = htons(port);
         if(connect(s,(struct sockaddr*)&addr,sizeof(addr)))
-            printf("connect successfully\n");
+            printf("connect failed\n");
         //send(s,"123",5,0);
     
         while(1)
