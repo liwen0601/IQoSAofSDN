@@ -413,29 +413,30 @@ class SimpleSwitch13(app_manager.RyuApp):
                     self.add_flow(datapath, 2, match, actions)
         elif self.mode==3:
             if self.connected == False:
-                print("Cannot connect to dpiDeamon, Drop")
+                self.logger.info("Cannot connect to dpiDeamon, Drop")
             #print("see me?")
-            try:
+            else: 
+                try:
                 #print(pkt.data[14:])
-                self.dpi_server.send(pkt.data[14:])  
-            except:
-                a=0
-            ret = self.dpi_server.recv(4)
-            pronum = int(ret[0])+int(ret[1])*256
-            #print(pronum)
-            if pronum != 0:
-                if ip!=None and ip.proto == 6:
-                    match = parser.OFPMatch(in_port=in_port, eth_type=0x0800,ip_proto=ip.proto,ipv4_src=ip.src,ipv4_dst=ip.dst,tcp_src=tr.src_port,tcp_dst=tr.dst_port)
-                if ip!=None and ip.proto == 17:
-                    match = parser.OFPMatch(in_port=in_port, eth_type=0x0800,ip_proto=ip.proto,ipv4_src=ip.src,ipv4_dst=ip.dst,udp_src=tr.src_port,udp_dst=tr.dst_port)
-                if pronum in self.Content:
-                    actions=[parser.OFPActionSetQueue(self.Content.index(pronum)),parser.OFPActionOutput(out_port)]
-                else:
-                    actions=[parser.OFPActionSetQueue(len(self.Content)),parser.OFPActionOutput(out_port)]
-                if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                    self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-                else:
-                    self.add_flow(datapath, 1, match, actions)
+                    self.dpi_server.send(pkt.data[14:])  
+                except:
+                    a=0
+                ret = self.dpi_server.recv(4)
+                pronum = int(ret[0])+int(ret[1])*256
+                #print(pronum)
+                if pronum != 0:
+                    if ip!=None and ip.proto == 6:
+                        match = parser.OFPMatch(in_port=in_port, eth_type=0x0800,ip_proto=ip.proto,ipv4_src=ip.src,ipv4_dst=ip.dst,tcp_src=tr.src_port,tcp_dst=tr.dst_port)
+                    if ip!=None and ip.proto == 17:
+                        match = parser.OFPMatch(in_port=in_port, eth_type=0x0800,ip_proto=ip.proto,ipv4_src=ip.src,ipv4_dst=ip.dst,udp_src=tr.src_port,udp_dst=tr.dst_port)
+                    if pronum in self.Content:
+                        actions=[parser.OFPActionSetQueue(self.Content.index(pronum)),parser.OFPActionOutput(out_port)]
+                    else:
+                        actions=[parser.OFPActionSetQueue(len(self.Content)),parser.OFPActionOutput(out_port)]
+                    if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                        self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                    else:
+                        self.add_flow(datapath, 1, match, actions)
 
         #print("see me?")
         data = None
