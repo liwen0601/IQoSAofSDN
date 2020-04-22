@@ -195,7 +195,7 @@ public:
     VOID Execute (ClassifyEngine *CfEngine)
     {
         DWORD Index = 0;
-        while (Index < 5)
+        while (Index < 300)
         {
             ULONG PktNum  = CfEngine->GetPacketNum ();
             ULONG Traffic = CfEngine->GetTraffic ();
@@ -203,10 +203,12 @@ public:
 
             sleep (5);
 
-            printf ("[%u]Kpps: %lu, Kfps: %lu, Mbps: %lu\r\n", Index, 
+            printf ("[%u][Q:%-4u]Kpps: %lu, Kfps: %lu, Mbps: %lu. TotalFlow:%lu (K)\r\n", Index,
+                   CfEngine->QueueSize (),
                    (CfEngine->GetPacketNum () - PktNum)/1000,
                    (CfEngine->GetFlowNum () - FlowNUm)/1000,
-                   (CfEngine->GetTraffic () - Traffic)*8/1000/1000);
+                   (CfEngine->GetTraffic () - Traffic)*8/1000/1000,
+                   CfEngine->GetFlowNum ()/1000);
 
             Index++;
         }  

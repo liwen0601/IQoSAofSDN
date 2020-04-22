@@ -124,7 +124,11 @@ bool Prepare(CHAR* PcapFile)
 VOID PerfTest(CHAR* UserIp, bool IsPerf)
 {
     DWORD NewDstIp = 1;
-    DWORD UIp = inet_addr(UserIp);
+    DWORD UIp = 0;
+    if (UserIp != NULL)
+    {
+        UIp = inet_addr(UserIp);
+    }
 
     T_IPSet* IpSet = GetUserIpSet ();
     assert (IpSet != NULL);
@@ -144,12 +148,18 @@ VOID PerfTest(CHAR* UserIp, bool IsPerf)
                 if (IpSet->find (SrcIp) != IpSet->end())
                 {
                     Ipv4Header->destIP = NewDstIp;
-                    Ipv4Header->sourceIP = UIp;
+                    if (UIp)
+                    {
+                        Ipv4Header->sourceIP = UIp;
+                    }
                 }
                 else if (IpSet->find (DstIp) != IpSet->end())
                 {
                     Ipv4Header->sourceIP = NewDstIp;
-                    Ipv4Header->destIP   = UIp;
+                    if (UIp)
+                    {
+                        Ipv4Header->destIP   = UIp;
+                    }
                 }
                 else
                 {
