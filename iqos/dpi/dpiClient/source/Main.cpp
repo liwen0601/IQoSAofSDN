@@ -121,9 +121,10 @@ bool Prepare(CHAR* PcapFile)
 }
 
 
-VOID PerfTest(bool IsPerf)
+VOID PerfTest(CHAR* UserIp, bool IsPerf)
 {
     DWORD NewDstIp = 1;
+    DWORD UIp = inet_addr(UserIp);
 
     T_IPSet* IpSet = GetUserIpSet ();
     assert (IpSet != NULL);
@@ -143,10 +144,12 @@ VOID PerfTest(bool IsPerf)
                 if (IpSet->find (SrcIp) != IpSet->end())
                 {
                     Ipv4Header->destIP = NewDstIp;
+                    Ipv4Header->sourceIP = UIp;
                 }
                 else if (IpSet->find (DstIp) != IpSet->end())
                 {
                     Ipv4Header->sourceIP = NewDstIp;
+                    Ipv4Header->destIP   = UIp;
                 }
                 else
                 {
@@ -180,8 +183,9 @@ int main(int argc, char *argv[])
 
     CHAR* PcapFile = NULL;
     bool IsPerf = false;
+    CHAR* UserIp = NULL;
     
-    while((ch = getopt(argc, argv, "d:s:p:xf:")) != -1)
+    while((ch = getopt(argc, argv, "d:s:p:xf:a:")) != -1)
     {
         switch(ch)
         {
@@ -210,6 +214,11 @@ int main(int argc, char *argv[])
                 PcapFile = optarg;
                 break;
             }
+            case 'a':
+            {
+                UserIp = optarg;
+                break;
+            }
             default:
             {
                 Help ();
@@ -228,7 +237,7 @@ int main(int argc, char *argv[])
         Client = new TCPclient (ServerIp, ServerPort);
         assert (Client != NULL);
 
-        PerfTest(IsPerf);
+        PerfTest(UserIp, IsPerf);
     }
     else
     {
