@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
                 pkt_recv=0;
                 prev=now;
             }
-            pkt_recv+=recvfrom(client_sock,buf,2000,0,&client_addr,&client_addr_size);
+            pkt_recv+=recvfrom(client_sock,buf,2000,0, (struct sockaddr *)&client_addr,&client_addr_size);
         }
     }
     else
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
                 prev=now;
             }
             socklen_t sock_len = sizeof(addr);
-            pkt_recv+=recvfrom(s,buf,2000,0,&addr,&sock_len);
+            pkt_recv+=recvfrom(s,buf,2000,0, (struct sockaddr *)&addr,&sock_len);
         }
 
     }

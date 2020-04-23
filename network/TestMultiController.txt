@@ -1,0 +1,12 @@
+sudo ryu-manager controller.py --ofp-tcp-listen-port 6653 2> controller.log &
+sudo ryu-manager controller.py --ofp-tcp-listen-port 6654 2> controller.log &
+sudo ryu-manager controller.py --ofp-tcp-listen-port 6655 2> controller.log &
+
+sudo ./multiController.py 
+
+h2 ./server TCP 443 &
+h1 ./client 10.0.0.2 443 TCP google.pcapng &
+h4 ./server TCP 443 &
+h3 ./client 10.0.0.4 443 TCP facebook.pcapng &
+h6 ./server TCP 443 &
+h5 ./client 10.0.0.6 443 TCP youtube.pcapng &

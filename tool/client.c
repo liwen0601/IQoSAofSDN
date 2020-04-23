@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
             for(int i=0;i<flowLen;i++)
             {   
                 struct iphdr *hdr;
-                hdr=sendStr[i];
+                hdr=(struct iphdr *)sendStr[i];
                 sendto(s,sendStr[i]+54,len[i]-54,0,(struct sockaddr*)&addr,sizeof(addr));
                 usleep(1);
             }
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
             for(int i=0;i<flowLen;i++)
             {   
                 struct iphdr *hdr;
-                hdr=sendStr[i];
+                hdr=(struct iphdr *)sendStr[i];
                 sendto(s,sendStr[i]+54,len[i]-54,0,(struct sockaddr*)&addr,sizeof(addr));
                 usleep(1);
             }
