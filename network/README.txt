@@ -17,8 +17,8 @@ To start the network topo and controller correctly, please configure the environ
    sudo ./dpiDeamon   (Make sure run the dpiDeamon under the directory)
    You can enter ps to see the print information
    Type flow to see flows added to controller
-6. Then start the Mininet with network topo and controller: 
-   sudo ./start.sh
+6. Then start the Mininet with respective network topo and controller: 
+   sudo ./start.sh 1/2/3/4
 7. xterm h1 h2
    TCP bandwidth testing
    h1: ./server TCP 5001
