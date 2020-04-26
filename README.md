@@ -5,6 +5,7 @@
 - network：network topo
 - tool：tools for experiments 
 
+Install libpcap before building: sudo apt install libpcap
 Utilize buildAll.sh to build the whole project, then experiments could be done in directory network.
 
 Read network/README.txt to known how to build ryu environments.
